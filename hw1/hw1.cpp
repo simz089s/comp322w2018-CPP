@@ -28,7 +28,7 @@ const int cols = 5;
  * are easy to look at and compute
  */
 
-// Q2
+// Q2 With static arrays
 void fillMatrix(int matrix[rows][cols])
 {
     srand(time(NULL));
@@ -41,7 +41,7 @@ void fillMatrix(int matrix[rows][cols])
     }
 }
 
-// Q7
+// Q7 With double pointers
 void fillMatrix(int** matrix)
 {
     srand(time(NULL));
@@ -55,7 +55,7 @@ void fillMatrix(int** matrix)
     }
 }
 
-// Q8
+// Q8 With single array
 void fillMatrix(int matrix[rows*cols])
 {
     srand(time(NULL));
@@ -68,7 +68,7 @@ void fillMatrix(int matrix[rows*cols])
     }
 }
 
-// Q3
+// Q3 With static array
 void PrintMatrix(int matrix[rows][cols])
 {
     for (int i = 0; i < rows; i++)
@@ -81,7 +81,7 @@ void PrintMatrix(int matrix[rows][cols])
     }
 }
 
-// Q7
+// Q7 With double pointers
 void PrintMatrix(int** matrix)
 {
     for (int i = 0; i < rows; i++)
@@ -94,7 +94,7 @@ void PrintMatrix(int** matrix)
     }
 }
 
-// Q8
+// Q8 With single array
 void PrintMatrix(int matrix[rows*cols])
 {
     for (int i = 0; i < rows; i++)
@@ -107,13 +107,14 @@ void PrintMatrix(int matrix[rows*cols])
     }
 }
 
-// Q4
+// Q4 With static array
 void transposeMatrix(int matrix[rows][cols])
 {
     for (int i = 0; i < rows; i++)
     {
         for (int j = i; j < cols; j++)
         {
+            // Swap (transpose is like a flip with the diagonal as axis)
             int tmp = matrix[i][j];
             matrix[i][j] = matrix[j][i];
             matrix[j][i] = tmp;
@@ -121,7 +122,7 @@ void transposeMatrix(int matrix[rows][cols])
     }
 }
 
-// Q7
+// Q7 With double pointers
 void transposeMatrix(int** matrix)
 {
     for (int i = 0; i < rows; i++)
@@ -135,7 +136,7 @@ void transposeMatrix(int** matrix)
     }
 }
 
-// Q5
+// Q5 With static arrays and iteration but returns double pointer (dynamically allocated)
 int** multiplyMatrices(int matrix1[rows][cols], int matrix2[rows][cols])
 {
     int** matrix3 = new int*[rows];
@@ -155,7 +156,7 @@ int** multiplyMatrices(int matrix1[rows][cols], int matrix2[rows][cols])
     return matrix3;
 }
 
-// Q6
+// Q6 With recursion
 int** multiplyMatricesRec(int matrix1[rows][cols], int matrix2[rows][cols],
                           int** matrix3, int i, int j)
 {
@@ -179,29 +180,36 @@ int** multiplyMatricesRec(int matrix1[rows][cols], int matrix2[rows][cols],
 
 int main(void)
 {
+    // Q2 and Q3
     int matrix0[rows][cols] = {{0,}};
     fillMatrix(matrix0);
     PrintMatrix(matrix0);
     std::cout << std::endl;
 
+    // Q4
     transposeMatrix(matrix0);
     PrintMatrix(matrix0);
     std::cout << std::endl;
 
+    // Q5
     int matrix1[rows][cols] = {{0,}};
     fillMatrix(matrix1);
     int** matrix0x1 = multiplyMatrices(matrix0, matrix1);
     PrintMatrix(matrix0x1);
     std::cout << std::endl;
 
-    fillMatrix(matrix0x1);
+    // Q6
+    fillMatrix(matrix0x1); // Reuse this, fill it with junk to prove the following works
     // PrintMatrix(matrix0x1);
     matrix0x1 = multiplyMatricesRec(matrix0, matrix1, matrix0x1, 0, 0);
     PrintMatrix(matrix0x1);
+    // Cleanup
     for (int i = 0; i < rows; delete[] matrix0x1[i], i++);
     delete[] matrix0x1;
     std::cout << std::endl;
 
+    // Q7
+    // Could've reused matrix0x1 but oh well this is cleaner
     int** matrix2 = new int*[rows];
     fillMatrix(matrix2);
     PrintMatrix(matrix2);
@@ -211,6 +219,7 @@ int main(void)
     delete[] matrix2;
     std::cout << std::endl;
 
+    // Q8
     int* matrix3 = new int[rows*cols];
     fillMatrix(matrix3);
     PrintMatrix(matrix3);
