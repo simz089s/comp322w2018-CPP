@@ -9,8 +9,22 @@
  * deallocated at some point to avoid memory leaks.
  */
 
+/**
+ * Question 8
+ * Yes. When we think of it, if we flatten a 2D array into a single array, then
+ * an element's position can still be seen as a "row" and "column". Every row
+ * have the same length. So the column stays the same, but we multiply by the
+ * numbers of row before to "get to" the row and then just add the column as the
+ * extra indices inside the row.
+ */
+
 const int rows = 5;
 const int cols = 5;
+
+/**
+ * The fillMatrix functions will use mod 10 so they all have the same size and
+ * are easy to look at and compute
+ */
 
 // Q2
 void fillMatrix(int matrix[rows][cols])
@@ -139,10 +153,39 @@ int** multiplyMatrices(int matrix1[rows][cols], int matrix2[rows][cols])
     return matrix3;
 }
 
-int main(int argc, char** argv)
+// Q6
+int** multiplyMatricesRec(int matrix1[rows][cols], int matrix2[rows][cols])
 {
-    int* matrix = new int[rows*cols];
-    fillMatrix(matrix);
-    PrintMatrix(matrix);
+    
+}
+
+int main(void)
+{
+    int matrix0[rows][cols] = {{0,}};
+    fillMatrix(matrix0);
+    PrintMatrix(matrix0);
+    transposeMatrix(matrix0);
+    PrintMatrix(matrix0);
+    int matrix1[rows][cols] = {{0,}};
+    fillMatrix(matrix1);
+    int** matrix0x1 = multiplyMatrices(matrix0, matrix1);
+    PrintMatrix(matrix0x1);
+    for (int i = 0; i < rows; delete[] matrix0x1[i], i++);
+    delete[] matrix0x1;
+
+
+    int** matrix2 = new int*[rows];
+    fillMatrix(matrix2);
+    PrintMatrix(matrix2);
+    transposeMatrix(matrix2);
+    PrintMatrix(matrix2);
+    for (int i = 0; i < rows; delete[] matrix2[i], i++);
+    delete[] matrix2;
+
+    int* matrix3 = new int[rows*cols];
+    fillMatrix(matrix3);
+    PrintMatrix(matrix3);
+    delete[] matrix3;
+
     return EXIT_SUCCESS;
 }
