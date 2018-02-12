@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstdlib>
 
+// using namespace std;
+
 /**
  * Question 1
  * Yes. Sort of. Using the basic array[] operator without "new" will limit to the
