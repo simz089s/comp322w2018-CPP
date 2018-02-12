@@ -154,9 +154,25 @@ int** multiplyMatrices(int matrix1[rows][cols], int matrix2[rows][cols])
 }
 
 // Q6
-int** multiplyMatricesRec(int matrix1[rows][cols], int matrix2[rows][cols])
+int** multiplyMatricesRec(int matrix1[rows][cols], int matrix2[rows][cols],
+                          int** matrix3, int i, int j)
 {
-    
+    if (j == cols)
+    {
+        j = 0;
+        i++;
+    }
+    if (i == rows) { return matrix3; }
+    else
+    {
+        int sum = 0;
+        for (int k = 0; k < cols; k++)
+        {
+            sum += matrix1[i][k] * matrix2[k][j];
+        }
+        matrix3[i][j] = sum;
+        return multiplyMatricesRec(matrix1, matrix2, matrix3, i, j+1);
+    }
 }
 
 int main(void)
@@ -164,15 +180,25 @@ int main(void)
     int matrix0[rows][cols] = {{0,}};
     fillMatrix(matrix0);
     PrintMatrix(matrix0);
+    std::cout << std::endl;
+
     transposeMatrix(matrix0);
     PrintMatrix(matrix0);
+    std::cout << std::endl;
+
     int matrix1[rows][cols] = {{0,}};
     fillMatrix(matrix1);
     int** matrix0x1 = multiplyMatrices(matrix0, matrix1);
     PrintMatrix(matrix0x1);
+    std::cout << std::endl;
+
+    fillMatrix(matrix0x1);
+    // PrintMatrix(matrix0x1);
+    matrix0x1 = multiplyMatricesRec(matrix0, matrix1, matrix0x1, 0, 0);
+    PrintMatrix(matrix0x1);
     for (int i = 0; i < rows; delete[] matrix0x1[i], i++);
     delete[] matrix0x1;
-
+    std::cout << std::endl;
 
     int** matrix2 = new int*[rows];
     fillMatrix(matrix2);
@@ -181,11 +207,13 @@ int main(void)
     PrintMatrix(matrix2);
     for (int i = 0; i < rows; delete[] matrix2[i], i++);
     delete[] matrix2;
+    std::cout << std::endl;
 
     int* matrix3 = new int[rows*cols];
     fillMatrix(matrix3);
     PrintMatrix(matrix3);
     delete[] matrix3;
+    std::cout << std::endl;
 
     return EXIT_SUCCESS;
 }
