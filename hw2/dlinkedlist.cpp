@@ -87,7 +87,7 @@ void DLLStructure::PrintDLL()
 
 void DLLStructure::InsertAfter(int valueToInsertAfter, int valueToBeInserted)
 {
-
+    
 }
 
 int main(void)
