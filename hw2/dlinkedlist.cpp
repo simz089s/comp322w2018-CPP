@@ -36,13 +36,13 @@ Node::Node(int data, Node* next, Node* previous)
     this->previous = previous;
 }
 
-int Node::getData(){return this->data;}
-Node* Node::getNext(){return this->next;}
-Node* Node::getPrev(){return this->previous;}
+int Node::getData() { return this->data; }
+Node* Node::getNext() { return this->next; }
+Node* Node::getPrev() { return this->previous; }
 
-void Node::setData(int data){this->data = data;}
-void Node::setNext(Node* next){this->next = next;}
-void Node::setPrev(Node* previous){this->previous = previous;}
+void Node::setData(int data) { this->data = data; }
+void Node::setNext(Node* next){ this->next = next; }
+void Node::setPrev(Node* previous) { this->previous = previous; }
 
 class DLLStructure
 {
@@ -61,10 +61,10 @@ private:
     Node* tail;
 };
 
-Node* DLLStructure::getHd(){return this->head;}
-Node* DLLStructure::getTl(){return this->tail;}
-void DLLStructure::setHd(Node* head){this->head = head;}
-void DLLStructure::setTl(Node* tail){this->tail = tail;}
+Node* DLLStructure::getHd() { return this->head; }
+Node* DLLStructure::getTl() { return this->tail; }
+void DLLStructure::setHd(Node* head) { this->head = head; }
+void DLLStructure::setTl(Node* tail) { this->tail = tail; }
 
 DLLStructure::DLLStructure()
 {
@@ -113,8 +113,6 @@ void DLLStructure::PrintDLL()
 int main(void)
 {
     int array[] = {13,42,69,360,420};
-    // DLLStructure* dll_ptr = new DLLStructure(array, sizeof(array)/sizeof(int));
-    // dll_ptr->PrintDLL();
     DLLStructure dll(array, sizeof(array)/sizeof(int));
     dll.PrintDLL();
     return EXIT_SUCCESS;
