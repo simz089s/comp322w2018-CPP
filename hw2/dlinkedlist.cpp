@@ -130,7 +130,7 @@ void DLLStructure::PrintDLL()
 {
     Node* current;
     for (current = this->getHd(); current->getNext() != (Node*)NULL; current = current->getNext())
-        std::cout << current->getData() << ", ";
+        { std::cout << current->getData() << ", "; }
     std::cout << current->getData() << std::endl;
 }
 
