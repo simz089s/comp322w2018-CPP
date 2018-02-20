@@ -1,24 +1,11 @@
 #include <iostream>
 #include <cstdlib>
 
-class Node
-{
-public:
-    Node();
-    ~Node();
-    Node(int data, Node* next, Node* previous);
-    int getData();
-    Node* getNext();
-    Node* getPrev();
-    void setData(int data);
-    void setNext(Node* next);
-    void setPrev(Node* previous);
+#include "dlinkedlist.h"
 
-private:
-    int data;
-    Node* next;
-    Node* previous;
-};
+/**
+ * Node
+ */
 
 Node::Node()
 {
@@ -27,7 +14,7 @@ Node::Node()
     this->previous = (Node*)NULL;
 }
 
-Node::~Node(){}
+Node::~Node() {}
 
 Node::Node(int data, Node* next, Node* previous)
 {
@@ -44,22 +31,9 @@ void Node::setData(int data) { this->data = data; }
 void Node::setNext(Node* next){ this->next = next; }
 void Node::setPrev(Node* previous) { this->previous = previous; }
 
-class DLLStructure
-{
-public:
-    DLLStructure();
-    ~DLLStructure();
-    DLLStructure(int array[], int length);
-    Node* getHd();
-    Node* getTl();
-    void setHd(Node* head);
-    void setTl(Node* tail);
-    void PrintDLL();
-
-private:
-    Node* head;
-    Node* tail;
-};
+/**
+ * DLLStructure
+ */
 
 Node* DLLStructure::getHd() { return this->head; }
 Node* DLLStructure::getTl() { return this->tail; }
@@ -109,6 +83,11 @@ void DLLStructure::PrintDLL()
 {
     for (Node* current = this->getHd(); current != (Node*)NULL; current = current->getNext())
         std::cout << current->getData() << std::endl;
+}
+
+void DLLStructure::InsertAfter(int valueToInsertAfter, int valueToBeInserted)
+{
+
 }
 
 int main(void)
