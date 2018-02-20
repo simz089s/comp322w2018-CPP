@@ -82,6 +82,7 @@ DLLStructure::~DLLStructure()
         {
             delete current;
             current = (Node*)NULL;
+            break;
         }
     }
 }
