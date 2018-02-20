@@ -81,19 +81,34 @@ DLLStructure::DLLStructure(int array[], int length)
 
 void DLLStructure::PrintDLL()
 {
-    for (Node* current = this->getHd(); current != (Node*)NULL; current = current->getNext())
-        std::cout << current->getData() << std::endl;
+    Node* current;
+    for (current = this->getHd(); current->getNext() != (Node*)NULL; current = current->getNext())
+        std::cout << current->getData() << ", ";
+    std::cout << current->getData() << std::endl;
 }
 
 void DLLStructure::InsertAfter(int valueToInsertAfter, int valueToBeInserted)
 {
-    
+    for (Node* current = this->getHd(); current != (Node*)NULL; current = current->getNext())
+    {
+        if (current->getData() == valueToInsertAfter)
+        {
+            Node* insert = new Node(valueToBeInserted, current->getNext(), current);
+            if (current->getNext() != (Node*)NULL) { current->getNext()->setPrev(insert); }
+            current->setNext(insert);
+            return;
+        }
+    }
 }
 
 int main(void)
 {
     int array[] = {13,42,69,360,420};
     DLLStructure dll(array, sizeof(array)/sizeof(int));
+    dll.PrintDLL();
+    dll.InsertAfter(13,7);
+    dll.PrintDLL();
+    dll.InsertAfter(420,7);
     dll.PrintDLL();
     return EXIT_SUCCESS;
 }
