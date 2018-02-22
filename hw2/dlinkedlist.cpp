@@ -206,6 +206,9 @@ void DLLStructure::Delete(int value)
     }
 }
 
+void prFstLst(DLLStructure* dll)
+{ std::cout << dll->getFst()->getData() << " " << dll->getLst()->getData() << std::endl; }
+
 int main(void)
 {
     int array[] = {13,42,69,360,420};
@@ -215,8 +218,19 @@ int main(void)
     dll.PrintDLL();
     dll.InsertAfter(420,7);
     dll.PrintDLL();
-    std::cout << dll.getLst()->getData() << std::endl;
+    prFstLst(&dll);
     dll.InsertAfter(7,9);
     dll.PrintDLL();
+    dll.Delete(7);
+    dll.Delete(7);
+    dll.Delete(9);
+    dll.InsertAfter(13, 12);
+    dll.Delete(13);
+    dll.Delete(420);
+    dll.PrintDLL();
+    prFstLst(&dll);
+    dll.InsertAfter(360,420);
+    dll.PrintDLL();
+    prFstLst(&dll);
     return EXIT_SUCCESS;
 }
