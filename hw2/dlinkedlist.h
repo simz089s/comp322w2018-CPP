@@ -26,16 +26,18 @@ public:
     DLLStructure();
     ~DLLStructure();
     DLLStructure(int array[], int length);
-    Node* getHd() const;
-    Node* getTl() const;
-    void setHd(Node* head);
-    void setTl(Node* tail);
+    Node* getFst() const;
+    Node* getLst() const;
+    void setFst(Node* head);
+    void setLst(Node* tail);
     void PrintDLL() const;
     void InsertAfter(int valueToInsertAfter, int valueToBeInserted);
+    void InsertBefore( int valueToInsertBefore, int valueToBeInserted);
+    void Delete(int value);
 
 private:
-    Node* head;
-    Node* tail;
+    Node* first;
+    Node* last;
 };
 
 #endif /* DLINKEDLIST_H */
