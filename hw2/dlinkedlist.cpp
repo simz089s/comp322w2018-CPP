@@ -131,6 +131,7 @@ DLLStructure::DLLStructure(int array[], int size) : first((Node*)NULL), last((No
 
 void DLLStructure::PrintDLL() const
 {
+    if (this->first == (Node*)NULL) { return; }
     Node* current;
     for (current = this->first; current->getNext() != (Node*)NULL; current = current->getNext())
         { std::cout << current->getData() << ", "; }
@@ -256,7 +257,7 @@ int DLLStructure::GetSize()
 }
 
 void prFstLst(DLLStructure* dll)
-{ std::cout << dll->getFst()->getData() << " " << dll->getLst()->getData() << std::endl; }
+{ std::cout << dll->GetHead() << ", " << dll->GetTail() << std::endl; }
 
 int main(void)
 {
@@ -281,6 +282,14 @@ int main(void)
     dll.InsertAfter(360,420);
     dll.PrintDLL();
     prFstLst(&dll);
-    dll.Sort();
+    // dll.Sort();
+    dll.Delete(12); dll.Delete(42); dll.Delete(69); dll.Delete(360); dll.Delete(420);
+    dll.PrintDLL();
+    std::cout << (dll.IsEmpty() ? "true" : "false") << std::endl;
+    dll.setFst(new Node(1, new Node(2, (Node*)NULL, (Node*)NULL), (Node*)NULL));
+    dll.setLst(dll.getFst()->getNext());
+    dll.getLst()->setPrev(dll.getFst());
+    dll.PrintDLL();
+    prFstLst(&dll);
     return EXIT_SUCCESS;
 }
