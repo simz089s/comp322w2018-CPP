@@ -95,8 +95,9 @@ DLLStructure::DLLStructure() : first((Node*)NULL), last((Node*)NULL)
 
 DLLStructure::~DLLStructure()
 {
-    Node* first = this->first;
-    for (Node* current = first->getNext(); current != (Node*)NULL; current = current->getNext())
+    if (this->first == (Node*)NULL) { return; }
+    if (this->first == this->last) { delete this->first; return; }
+    for (Node* current = this->first->getNext(); current != (Node*)NULL; current = current->getNext())
     {
         delete current->getPrev();
         if (current->getNext() == (Node*)NULL)
@@ -204,6 +205,12 @@ void DLLStructure::Delete(int value)
             return;
         }
     }
+}
+
+void DLLStructure::Sort()
+{
+    int size = 5; // ???
+    if (size < 2) { return; }
 }
 
 void prFstLst(DLLStructure* dll)

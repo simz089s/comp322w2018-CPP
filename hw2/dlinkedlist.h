@@ -34,6 +34,7 @@ public:
     void InsertAfter(int valueToInsertAfter, int valueToBeInserted);
     void InsertBefore( int valueToInsertBefore, int valueToBeInserted);
     void Delete(int value);
+    void Sort();
 
 private:
     Node* first;
