@@ -286,6 +286,7 @@ int main(void)
     std::cout << dll.GetSize() << std::endl;
     dll.Delete(12); dll.Delete(42); dll.Delete(69); dll.Delete(360); dll.Delete(420);
     dll.PrintDLL();
+    std::cout << dll.GetSize() << std::endl;
     std::cout << (dll.IsEmpty() ? "true" : "false") << std::endl;
     dll.setFst(new Node(1, new Node(2, (Node*)NULL, (Node*)NULL), (Node*)NULL));
     dll.setLst(dll.getFst()->getNext());
