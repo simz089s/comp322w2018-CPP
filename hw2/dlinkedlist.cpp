@@ -3,6 +3,8 @@
 
 #include "dlinkedlist.h"
 
+// using namespace std;
+
 /**
  * Header file structure:
 
@@ -150,6 +152,7 @@ void DLLStructure::InsertAfter(int valueToInsertAfter, int valueToBeInserted)
     }
 }
 
+// TODO
 void DLLStructure::InsertBefore(int valueToInsertBefore, int valueToBeInserted)
 {
     for (Node* current = this->first; current != (Node*)NULL; current = current->getNext())
@@ -207,10 +210,24 @@ void DLLStructure::Delete(int value)
     }
 }
 
+// TODO
 void DLLStructure::Sort()
 {
-    int size = 5; // ???
-    if (size < 2) { return; }
+    // int size = 0;
+    // for (Node* current = this->first; current != (Node*)NULL; current = current->getNext(), size++);
+    // std::cout << size << std::endl;
+    if (this->first == (Node*)NULL || this->first->getNext() == (Node*)NULL) { return; }
+    Node* current = this->first;
+    while (current != (Node*)NULL)
+    {
+        if (current->getNext()->getData() < current->getData())
+        {
+            Node* larger = current->getNext();
+            while (larger->getData() > larger->getPrev()->getData())
+            {return;}
+        }
+        current = current->getNext();
+    }
 }
 
 void prFstLst(DLLStructure* dll)
@@ -239,5 +256,6 @@ int main(void)
     dll.InsertAfter(360,420);
     dll.PrintDLL();
     prFstLst(&dll);
+    dll.Sort();
     return EXIT_SUCCESS;
 }
