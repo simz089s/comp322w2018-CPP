@@ -213,9 +213,6 @@ void DLLStructure::Delete(int value)
 // TODO
 void DLLStructure::Sort()
 {
-    // int size = 0;
-    // for (Node* current = this->first; current != (Node*)NULL; current = current->getNext(), size++);
-    // std::cout << size << std::endl;
     if (this->first == (Node*)NULL || this->first->getNext() == (Node*)NULL) { return; }
     Node* current = this->first;
     while (current != (Node*)NULL)
@@ -245,6 +242,17 @@ int DLLStructure::GetTail()
 {
     if (this->IsEmpty()) { return 0; }
     return this->last->getData();
+}
+
+/**
+ * Using a size private class variable/field/member that gets propely updated by
+ * methods that change the size would be much more convenient and efficient.
+ */
+int DLLStructure::GetSize()
+{
+    int size = 0;
+    for (Node* current = this->first; current != (Node*)NULL; current = current->getNext(), size++);
+    return size;
 }
 
 void prFstLst(DLLStructure* dll)

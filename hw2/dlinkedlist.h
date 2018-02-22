@@ -38,6 +38,7 @@ public:
     bool IsEmpty();
     int GetHead();
     int GetTail();
+    int GetSize();
 
 private:
     Node* first;
