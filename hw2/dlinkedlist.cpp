@@ -230,6 +230,23 @@ void DLLStructure::Sort()
     }
 }
 
+bool DLLStructure::IsEmpty()
+{
+    return this->first == (Node*)NULL;
+}
+
+int DLLStructure::GetHead()
+{
+    if (this->IsEmpty()) { return 0; }
+    return this->first->getData();
+}
+
+int DLLStructure::GetTail()
+{
+    if (this->IsEmpty()) { return 0; }
+    return this->last->getData();
+}
+
 void prFstLst(DLLStructure* dll)
 { std::cout << dll->getFst()->getData() << " " << dll->getLst()->getData() << std::endl; }
 
