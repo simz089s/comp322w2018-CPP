@@ -283,6 +283,7 @@ int main(void)
     dll.PrintDLL();
     prFstLst(&dll);
     // dll.Sort();
+    std::cout << dll.GetSize() << std::endl;
     dll.Delete(12); dll.Delete(42); dll.Delete(69); dll.Delete(360); dll.Delete(420);
     dll.PrintDLL();
     std::cout << (dll.IsEmpty() ? "true" : "false") << std::endl;
@@ -291,5 +292,6 @@ int main(void)
     dll.getLst()->setPrev(dll.getFst());
     dll.PrintDLL();
     prFstLst(&dll);
+    std::cout << dll.GetSize() << std::endl;
     return EXIT_SUCCESS;
 }
