@@ -54,25 +54,25 @@ private:
  * Node
  */
 
-Node::Node()
+Node::Node() : data(0), next((Node*)NULL), previous((Node*)NULL)
 {
-    this->data = 0;
-    this->next = (Node*)NULL;
-    this->previous = (Node*)NULL;
+    // this->data = 0;
+    // this->next = (Node*)NULL;
+    // this->previous = (Node*)NULL;
 }
 
-Node::~Node() {}
+// Node::~Node() {} Nothing to delete
 
-Node::Node(int data, Node* next, Node* previous)
+Node::Node(int data, Node* next, Node* previous) : data(data), next(next), previous(previous)
 {
-    this->data = data;
-    this->next = next;
-    this->previous = previous;
+    // this->data = data;
+    // this->next = next;
+    // this->previous = previous;
 }
 
-int Node::getData() { return this->data; }
-Node* Node::getNext() { return this->next; }
-Node* Node::getPrev() { return this->previous; }
+int Node::getData() const { return this->data; }
+Node* Node::getNext() const { return this->next; }
+Node* Node::getPrev() const { return this->previous; }
 
 void Node::setData(int data) { this->data = data; }
 void Node::setNext(Node* next){ this->next = next; }
@@ -82,15 +82,15 @@ void Node::setPrev(Node* previous) { this->previous = previous; }
  * DLLStructure
  */
 
-Node* DLLStructure::getHd() { return this->head; }
-Node* DLLStructure::getTl() { return this->tail; }
+Node* DLLStructure::getHd() const { return this->head; }
+Node* DLLStructure::getTl() const { return this->tail; }
 void DLLStructure::setHd(Node* head) { this->head = head; }
 void DLLStructure::setTl(Node* tail) { this->tail = tail; }
 
-DLLStructure::DLLStructure()
+DLLStructure::DLLStructure() : head((Node*)NULL), tail((Node*)NULL)
 {
-    this->head = (Node*)NULL;
-    this->tail = (Node*)NULL;
+    // this->head = (Node*)NULL;
+    // this->tail = (Node*)NULL;
 }
 
 DLLStructure::~DLLStructure()
@@ -108,10 +108,10 @@ DLLStructure::~DLLStructure()
     }
 }
 
-DLLStructure::DLLStructure(int array[], int length)
+DLLStructure::DLLStructure(int array[], int length) : head((Node*)NULL), tail((Node*)NULL)
 {
-    this->head = (Node*)NULL;
-    this->tail = (Node*)NULL;
+    // this->head = (Node*)NULL;
+    // this->tail = (Node*)NULL;
     if (length < 1) { return; }
 
     this->head = new Node();
@@ -126,17 +126,17 @@ DLLStructure::DLLStructure(int array[], int length)
     this->tail = prev;
 }
 
-void DLLStructure::PrintDLL()
+void DLLStructure::PrintDLL() const
 {
     Node* current;
-    for (current = this->getHd(); current->getNext() != (Node*)NULL; current = current->getNext())
+    for (current = this->head; current->getNext() != (Node*)NULL; current = current->getNext())
         { std::cout << current->getData() << ", "; }
     std::cout << current->getData() << std::endl;
 }
 
 void DLLStructure::InsertAfter(int valueToInsertAfter, int valueToBeInserted)
 {
-    for (Node* current = this->getHd(); current != (Node*)NULL; current = current->getNext())
+    for (Node* current = this->head; current != (Node*)NULL; current = current->getNext())
     {
         if (current->getData() == valueToInsertAfter)
         {
@@ -156,6 +156,8 @@ int main(void)
     dll.InsertAfter(13,7);
     dll.PrintDLL();
     dll.InsertAfter(420,7);
+    dll.PrintDLL();
+    dll.InsertAfter(7,9);
     dll.PrintDLL();
     return EXIT_SUCCESS;
 }

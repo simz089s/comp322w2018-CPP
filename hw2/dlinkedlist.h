@@ -5,11 +5,11 @@ class Node
 {
 public:
     Node();
-    ~Node();
+    // ~Node(); Nothing to delete
     Node(int data, Node* next, Node* previous);
-    int getData();
-    Node* getNext();
-    Node* getPrev();
+    int getData() const;
+    Node* getNext() const;
+    Node* getPrev() const;
     void setData(int data);
     void setNext(Node* next);
     void setPrev(Node* previous);
@@ -26,11 +26,11 @@ public:
     DLLStructure();
     ~DLLStructure();
     DLLStructure(int array[], int length);
-    Node* getHd();
-    Node* getTl();
+    Node* getHd() const;
+    Node* getTl() const;
     void setHd(Node* head);
     void setTl(Node* tail);
-    void PrintDLL();
+    void PrintDLL() const;
     void InsertAfter(int valueToInsertAfter, int valueToBeInserted);
 
 private:
