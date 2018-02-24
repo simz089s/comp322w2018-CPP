@@ -35,10 +35,10 @@ public:
     void InsertBefore( int valueToInsertBefore, int valueToBeInserted);
     void Delete(int value);
     void Sort();
-    bool IsEmpty();
-    int GetHead();
-    int GetTail();
-    int GetSize();
+    bool IsEmpty() const;
+    int GetHead() const;
+    int GetTail() const;
+    int GetSize() const;
 
 private:
     Node* first;

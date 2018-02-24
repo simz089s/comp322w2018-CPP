@@ -250,18 +250,18 @@ void DLLStructure::Sort()
     }
 }
 
-bool DLLStructure::IsEmpty()
+bool DLLStructure::IsEmpty() const
 {
     return this->first == (Node*)NULL;
 }
 
-int DLLStructure::GetHead()
+int DLLStructure::GetHead() const
 {
     if (this->IsEmpty()) { return 0; }
     return this->first->getData();
 }
 
-int DLLStructure::GetTail()
+int DLLStructure::GetTail() const
 {
     if (this->IsEmpty()) { return 0; }
     return this->last->getData();
@@ -271,7 +271,7 @@ int DLLStructure::GetTail()
  * Using a size private class variable/field/member that gets propely updated by
  * methods that change the size would be much more convenient and efficient.
  */
-int DLLStructure::GetSize()
+int DLLStructure::GetSize() const
 {
     int size = 0;
     for (Node* current = this->first; current != (Node*)NULL; current = current->getNext(), size++);
@@ -304,7 +304,6 @@ int main(void)
     dll.InsertAfter(360,420);
     dll.PrintDLL();
     prFstLst(&dll);
-    // dll.Sort();
     std::cout << dll.GetSize() << std::endl;
     dll.Delete(12); dll.Delete(42); dll.Delete(69); dll.Delete(360); dll.Delete(420);
     dll.PrintDLL();
@@ -316,5 +315,20 @@ int main(void)
     dll.PrintDLL();
     prFstLst(&dll);
     std::cout << dll.GetSize() << std::endl;
+    dll.InsertBefore(2, 0);
+    dll.PrintDLL();
+    prFstLst(&dll);
+    dll.InsertBefore(1, -1);
+    dll.PrintDLL();
+    prFstLst(&dll);
+    dll.InsertBefore(1, -1);
+    dll.PrintDLL();
+    prFstLst(&dll);
+    dll.InsertBefore(1, 9);
+    dll.PrintDLL();
+    prFstLst(&dll);
+    dll.Sort();
+    dll.PrintDLL();
+    prFstLst(&dll);
     return EXIT_SUCCESS;
 }
