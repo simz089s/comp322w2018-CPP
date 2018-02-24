@@ -153,7 +153,6 @@ void DLLStructure::InsertAfter(int valueToInsertAfter, int valueToBeInserted)
     }
 }
 
-// TODO
 void DLLStructure::InsertBefore(int valueToInsertBefore, int valueToBeInserted)
 {
     for (Node* current = this->first; current != (Node*)NULL; current = current->getNext())
@@ -162,12 +161,18 @@ void DLLStructure::InsertBefore(int valueToInsertBefore, int valueToBeInserted)
         {
             if (current == this->first)
             {
-                // ???
+                Node* newFirst = new Node(valueToBeInserted, current, (Node*)NULL);
+                current->setPrev(newFirst);
+                this->first = newFirst;
             }
             else
             {
                 // [1,2,2,4] InsertBefore(4, 99) ???
-                this->InsertAfter(current->getPrev()->getData(), valueToBeInserted);
+                // HACK
+                Node* tmpFirst = this->first;
+                this->first = current->getPrev();
+                this->InsertAfter(this->first->getData(), valueToBeInserted);
+                this->first = tmpFirst;
             }
             return;
         }
