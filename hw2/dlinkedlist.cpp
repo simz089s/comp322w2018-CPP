@@ -211,18 +211,35 @@ void DLLStructure::Delete(int value)
     }
 }
 
-// TODO
+// Insertion Sort
 void DLLStructure::Sort()
 {
     if (this->first == (Node*)NULL || this->first->getNext() == (Node*)NULL) { return; }
     Node* current = this->first;
     while (current != (Node*)NULL)
     {
+        if (current->getNext() == (Node*)NULL) { return; }
         if (current->getNext()->getData() < current->getData())
         {
-            Node* larger = current->getNext();
-            while (larger->getData() > larger->getPrev()->getData())
-            {return;}
+            Node *smaller, *back;
+            for (smaller = current->getNext(), back = current;
+                 back != (Node*)NULL && smaller->getData() < back->getData();
+                 back = back->getPrev());
+            if (back == (Node*)NULL)
+            {
+                this->InsertBefore(this->first->getData(), smaller->getData());
+                // HACK
+                Node* tmp = this->first;
+                this->first = smaller;
+                this->Delete(smaller->getData());
+                this->first = tmp;
+            }
+            else
+            {
+                int tmp = back->getData();
+                back->setData(smaller->getData());
+                smaller->setData(tmp);
+            }
         }
         current = current->getNext();
     }
