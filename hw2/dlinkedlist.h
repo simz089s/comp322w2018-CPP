@@ -34,6 +34,7 @@ public:
     void InsertAfter(int valueToInsertAfter, int valueToBeInserted);
     void InsertBefore( int valueToInsertBefore, int valueToBeInserted);
     void Delete(int value);
+    Node* Get(int idx) const;
     void Sort();
     bool IsEmpty() const;
     int GetHead() const;

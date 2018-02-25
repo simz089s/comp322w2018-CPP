@@ -216,6 +216,14 @@ void DLLStructure::Delete(int value)
     }
 }
 
+// Get node at index
+Node* DLLStructure::Get(int idx) const
+{
+    for (Node* current = this->first; current != nullptr; current = current->getNext(), idx--)
+        if (idx == 0) { return current; }
+    return nullptr;
+}
+
 // Insertion Sort
 void DLLStructure::Sort()
 {
@@ -228,23 +236,24 @@ void DLLStructure::Sort()
         {
             Node *smaller, *back;
             for (smaller = current->getNext(), back = current;
-                 back != (Node*)NULL && smaller->getData() < back->getData();
+                 back->getPrev() != (Node*)NULL && smaller->getData() < back->getData();
                  back = back->getPrev());
-            if (back == (Node*)NULL)
-            {
-                this->InsertBefore(this->first->getData(), smaller->getData());
-                // HACK
-                Node* tmp = this->first;
-                this->first = smaller;
-                this->Delete(smaller->getData());
-                this->first = tmp;
-            }
-            else
-            {
-                int tmp = back->getData();
-                back->setData(smaller->getData());
-                smaller->setData(tmp);
-            }
+            // HACK
+            Node* tmpFirst = this->first;
+            this->first = back;
+            Node* tmpPrev = back->getPrev();
+            back->setPrev((Node*)NULL);
+            this->InsertBefore(back->getData(), smaller->getData());
+            back->getPrev()->setPrev(tmpPrev);
+            this->first = tmpFirst;
+            // HACK
+            tmpFirst = this->first;
+            this->first = smaller;
+            current = current->getPrev();
+            this->first->setPrev((Node*)NULL);
+            this->Delete(smaller->getData());
+            this->first->setPrev(current);
+            this->first = tmpFirst;
         }
         current = current->getNext();
     }
@@ -329,6 +338,7 @@ int main(void)
     prFstLst(&dll);
     dll.Sort();
     dll.PrintDLL();
+    // for(int i=0;i<dll.GetSize();i++)std::cout<<dll.Get(i)->getData()<<" ";std::cout<<std::endl;
     prFstLst(&dll);
     return EXIT_SUCCESS;
 }
