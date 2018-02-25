@@ -219,44 +219,27 @@ void DLLStructure::Delete(int value)
 // Get node at index
 Node* DLLStructure::Get(int idx) const
 {
-    for (Node* current = this->first; current != nullptr; current = current->getNext(), idx--)
+    for (Node* current = this->first; current != (Node*)NULL; current = current->getNext(), idx--)
         if (idx == 0) { return current; }
-    return nullptr;
+    return (Node*)NULL;
 }
 
-// Insertion Sort
+// Shell sort
 void DLLStructure::Sort()
 {
     if (this->first == (Node*)NULL || this->first->getNext() == (Node*)NULL) { return; }
-    Node* current = this->first;
-    while (current != (Node*)NULL)
+    int size = this->GetSize();
+	for (int h = size/2; h > 0; h/=2)
     {
-        if (current->getNext() == (Node*)NULL) { return; }
-        if (current->getNext()->getData() < current->getData())
+		for (int i = h; i < size; i++)
         {
-            Node *smaller, *back;
-            for (smaller = current->getNext(), back = current;
-                 back->getPrev() != (Node*)NULL && smaller->getData() < back->getData();
-                 back = back->getPrev());
-            // HACK
-            Node* tmpFirst = this->first;
-            this->first = back;
-            Node* tmpPrev = back->getPrev();
-            back->setPrev((Node*)NULL);
-            this->InsertBefore(back->getData(), smaller->getData());
-            back->getPrev()->setPrev(tmpPrev);
-            this->first = tmpFirst;
-            // HACK
-            tmpFirst = this->first;
-            this->first = smaller;
-            current = current->getPrev();
-            this->first->setPrev((Node*)NULL);
-            this->Delete(smaller->getData());
-            this->first->setPrev(current);
-            this->first = tmpFirst;
-        }
-        current = current->getNext();
-    }
+			int tmp = this->Get(i)->getData();
+            int j;
+			for (j = i; j >= h && this->Get(j-h)->getData() > tmp; j-=h)
+				this->Get(j)->setData(this->Get(j-h)->getData());
+			this->Get(j)->setData(tmp);
+		}
+	}
 }
 
 bool DLLStructure::IsEmpty() const
@@ -340,5 +323,12 @@ int main(void)
     dll.PrintDLL();
     // for(int i=0;i<dll.GetSize();i++)std::cout<<dll.Get(i)->getData()<<" ";std::cout<<std::endl;
     prFstLst(&dll);
+    int a[] = {10000};
+    DLLStructure bigdll(a, sizeof(a)/sizeof(int));
+    for(int i=0;i<a[0];i++)bigdll.InsertAfter(10000, i);
+    bigdll.PrintDLL();
+    bigdll.Sort();
+    bigdll.PrintDLL();
+    prFstLst(&bigdll);
     return EXIT_SUCCESS;
 }
