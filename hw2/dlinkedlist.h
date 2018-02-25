@@ -3,6 +3,11 @@
 
 class Node
 {
+private:
+    int data;
+    Node* next;
+    Node* previous;
+
 public:
     Node();
     // ~Node(); Nothing to delete
@@ -13,15 +18,14 @@ public:
     void setData(int data);
     void setNext(Node* next);
     void setPrev(Node* previous);
-
-private:
-    int data;
-    Node* next;
-    Node* previous;
 };
 
 class DLLStructure
 {
+private:
+    Node* first;
+    Node* last;
+
 public:
     DLLStructure();
     ~DLLStructure();
@@ -42,10 +46,7 @@ public:
     int GetSize() const;
     int GetMax() const;
     int GetMin() const;
-
-private:
-    Node* first;
-    Node* last;
+    DLLStructure(DLLStructure& dlls);
 };
 
 #endif /* DLINKEDLIST_H */
