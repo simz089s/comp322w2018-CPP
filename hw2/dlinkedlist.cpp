@@ -270,6 +270,16 @@ int DLLStructure::GetSize() const
     return size;
 }
 
+
+/**
+ * We could keep a max and min private class variable/field/member in DLLStructure.
+ * Only updating the max and min when a node gets added or remove, or when a node
+ * data changes could make things more efficient. Adding a node or changing a
+ * value would be easier as it just requires a comparison to the new value with
+ * the current max and min to update them.
+ * Also, depending on the use of the linked list, we could keep the list sorted.
+ */
+
 int DLLStructure::GetMax() const
 {
     int max = this->GetHead();
