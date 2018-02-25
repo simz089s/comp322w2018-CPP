@@ -13,39 +13,50 @@
 
 class Node
 {
-public:
-    Node();
-    ~Node();
-    Node(int data, Node* next, Node* previous);
-    int getData();
-    Node* getNext();
-    Node* getPrev();
-    void setData(int data);
-    void setNext(Node* next);
-    void setPrev(Node* previous);
-
 private:
     int data;
     Node* next;
     Node* previous;
+
+public:
+    Node();
+    // ~Node(); Nothing to delete
+    Node(int data, Node* next, Node* previous);
+    int getData() const;
+    Node* getNext() const;
+    Node* getPrev() const;
+    void setData(int data);
+    void setNext(Node* next);
+    void setPrev(Node* previous);
 };
 
 class DLLStructure
 {
+private:
+    Node* first;
+    Node* last;
+
 public:
     DLLStructure();
     ~DLLStructure();
     DLLStructure(int array[], int length);
-    Node* getHd();
-    Node* getTl();
-    void setHd(Node* head);
-    void setTl(Node* tail);
-    void PrintDLL();
+    Node* getFst() const;
+    Node* getLst() const;
+    void setFst(Node* head);
+    void setLst(Node* tail);
+    void PrintDLL() const;
     void InsertAfter(int valueToInsertAfter, int valueToBeInserted);
-
-private:
-    Node* head;
-    Node* tail;
+    void InsertBefore( int valueToInsertBefore, int valueToBeInserted);
+    void Delete(int value);
+    Node* Get(int idx) const;
+    void Sort();
+    bool IsEmpty() const;
+    int GetHead() const;
+    int GetTail() const;
+    int GetSize() const;
+    int GetMax() const;
+    int GetMin() const;
+    DLLStructure(DLLStructure& dlls);
 };
 
 #endif // DLINKEDLIST_H
@@ -312,10 +323,12 @@ DLLStructure::DLLStructure(DLLStructure& dlls) : first(new Node(dlls.GetHead(), 
         this->InsertAfter(this->GetHead(), current->getData());
 }
 
+// Test function to print head and tail
 void prFstLst(DLLStructure& dll)
 { std::cout << dll.GetHead() << ", " << dll.GetTail() << std::endl; }
 
-int main(void)
+// Test function
+void Test()
 {
     int array[] = {13,42,69,360,420};
     DLLStructure dll(array, sizeof(array)/sizeof(int));
@@ -388,5 +401,10 @@ int main(void)
     std::cout << dllcopy.GetSize() << std::endl <<
                  dllcopy.GetMax()  << std::endl <<
                  dllcopy.GetMin()  << std::endl;
+}
+
+int main(void)
+{
+    Test();
     return EXIT_SUCCESS;
 }
