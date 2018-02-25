@@ -296,10 +296,10 @@ int DLLStructure::GetMin() const
     return min;
 }
 
-DLLStructure::DLLStructure(DLLStructure& dlls)
+DLLStructure::DLLStructure(DLLStructure& dlls) : first(new Node(dlls.GetHead(), (Node*)NULL, (Node*)NULL)), last(this->first)
 {
-    int a[] = {this->GetHead()};
-    DLLStructure dll(a, sizeof(a)/sizeof(int));
+    // int a[] = {dlls.GetHead()};
+    // DLLStructure dll(a, sizeof(a)/sizeof(int));
     for (Node* current = dlls.last; current != dlls.first; current = current->getPrev())
         this->InsertAfter(this->GetHead(), current->getData());
 }
@@ -366,7 +366,19 @@ int main(void)
     // prFstLst(bigdll);
     std::cout << dll.GetMax() << std::endl;
     std::cout << dll.GetMin() << std::endl;
+    std::cout << "COPY" << std::endl;
     DLLStructure dllcopy(dll);
     dllcopy.PrintDLL();
+    prFstLst(dllcopy);
+    dllcopy.InsertAfter(0, -2);
+    dllcopy.InsertBefore(0, 10);
+    dllcopy.PrintDLL();
+    dll.PrintDLL();
+    dllcopy.Sort();
+    dllcopy.PrintDLL();
+    prFstLst(dllcopy);
+    std::cout << dllcopy.GetSize() << std::endl <<
+                 dllcopy.GetMax()  << std::endl <<
+                 dllcopy.GetMin()  << std::endl;
     return EXIT_SUCCESS;
 }
