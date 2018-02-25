@@ -5,6 +5,8 @@
 
 // using namespace std;
 
+// Something like `Node* const NNULL = (Node*)NULL;` might be useful or using nullptr (C++11)
+
 /**
  * Header file structure:
 
@@ -318,7 +320,7 @@ int DLLStructure::GetMin() const
 DLLStructure::DLLStructure(DLLStructure& dlls) : first(new Node(dlls.GetHead(), (Node*)NULL, (Node*)NULL)), last(this->first)
 {
     // int a[] = {dlls.GetHead()};
-    // DLLStructure dll(a, sizeof(a)/sizeof(int));
+    // DLLStructure dll(a, sizeof(a)/sizeof(int)); Could also use delegate constructor (C++11)
     for (Node* current = dlls.last; current != dlls.first; current = current->getPrev())
         this->InsertAfter(this->GetHead(), current->getData());
 }
