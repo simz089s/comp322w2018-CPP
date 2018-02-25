@@ -296,6 +296,14 @@ int DLLStructure::GetMin() const
     return min;
 }
 
+/**
+ * The default copy constructor would only make a shallow copy, i.e. copy the
+ * references (or rather pointers) of the list. This is because of the structure
+ * of the list which is actually a chain of pointers to node objects. So the
+ * supposed "copy" would actually reference or point to the original list and
+ * thus any changes to the "copy" would change the original, ruining the point
+ * of the copy (at least if we wanted a deep copy).
+ */
 DLLStructure::DLLStructure(DLLStructure& dlls) : first(new Node(dlls.GetHead(), (Node*)NULL, (Node*)NULL)), last(this->first)
 {
     // int a[] = {dlls.GetHead()};
