@@ -5,7 +5,8 @@
 
 // using namespace std;
 
-// Something like `Node* const NNULL = (Node*)NULL;` might be useful or using nullptr (C++11)
+// Something like `static constexpr Node* const NNULL = (Node*)NULL;` (C++11)
+// might be useful or using nullptr (C++11)
 
 /**
  * Header file structure:
