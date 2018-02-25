@@ -270,6 +270,22 @@ int DLLStructure::GetSize() const
     return size;
 }
 
+int DLLStructure::GetMax() const
+{
+    int max = this->GetHead();
+    for (Node* current = this->first->getNext(); current != (Node*)NULL; current = current->getNext())
+        max = max > current->getData() ? max : current->getData();
+    return max;
+}
+
+int DLLStructure::GetMin() const
+{
+    int min = this->GetHead();
+    for (Node* current = this->first->getNext(); current != (Node*)NULL; current = current->getNext())
+        min = min < current->getData() ? min : current->getData();
+    return min;
+}
+
 void prFstLst(DLLStructure* dll)
 { std::cout << dll->GetHead() << ", " << dll->GetTail() << std::endl; }
 
@@ -323,12 +339,14 @@ int main(void)
     dll.PrintDLL();
     // for(int i=0;i<dll.GetSize();i++)std::cout<<dll.Get(i)->getData()<<" ";std::cout<<std::endl;
     prFstLst(&dll);
-    int a[] = {10000};
-    DLLStructure bigdll(a, sizeof(a)/sizeof(int));
-    for(int i=0;i<a[0];i++)bigdll.InsertAfter(10000, i);
-    bigdll.PrintDLL();
-    bigdll.Sort();
-    bigdll.PrintDLL();
-    prFstLst(&bigdll);
+    // int a[] = {10000};
+    // DLLStructure bigdll(a, sizeof(a)/sizeof(int));
+    // for(int i=0;i<a[0];i++)bigdll.InsertAfter(10000, i);
+    // bigdll.PrintDLL();
+    // bigdll.Sort();
+    // bigdll.PrintDLL();
+    // prFstLst(&bigdll);
+    std::cout << dll.GetMax() << std::endl;
+    std::cout << dll.GetMin() << std::endl;
     return EXIT_SUCCESS;
 }

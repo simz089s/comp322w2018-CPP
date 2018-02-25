@@ -40,6 +40,8 @@ public:
     int GetHead() const;
     int GetTail() const;
     int GetSize() const;
+    int GetMax() const;
+    int GetMin() const;
 
 private:
     Node* first;
