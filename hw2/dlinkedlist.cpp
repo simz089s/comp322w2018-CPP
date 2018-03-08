@@ -1,3 +1,16 @@
+/**
+ * Student name:
+ * First: Simon
+ * Last: Zheng
+ * 
+ * Student ID:
+ * 260 744 353
+ * 
+ * TODO :
+ * - Write test code in main
+ * - Implement optimizations for last questions
+ */
+
 #include <iostream>
 #include <cstdlib>
 
@@ -408,6 +421,23 @@ void Test()
 
 int main(void)
 {
+    // TEST NODE CLASS DIRECTLY
+    Node node(42, nullptr, nullptr);
+    std::cout << node.getData() << " " << node.getPrev() << " " << node.getNext() << std::endl;
+    node.setData(-1);
+    node.setPrev(&node);
+    node.setNext(&node);
+    std::cout << node.getData() << " " << node.getPrev() << " " << node.getNext() << std::endl;
+    Node* node_ptr = new Node();
+    delete node_ptr;
+
+    // TEST DLLSTRUCTURE CLASS
+    DLLStructure* dll_ptr = new DLLStructure();
+    delete dll_ptr;
+    int array[] = { -1, 0, 1, 2, 3 };
+    DLLStructure dll(array, sizeof(array)/sizeof(int));
+    dll.PrintDLL();
+
     // Test();
     return EXIT_SUCCESS;
 }
