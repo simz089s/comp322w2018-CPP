@@ -51,6 +51,7 @@ class DLLStructure
 private:
     Node* first;
     Node* last;
+    int size;
 
 public:
     DLLStructure();
@@ -116,7 +117,7 @@ Node* DLLStructure::getLst() const { return this->last; }
 void DLLStructure::setFst(Node* first) { this->first = first; }
 void DLLStructure::setLst(Node* last) { this->last = last; }
 
-DLLStructure::DLLStructure() : first((Node*)NULL), last((Node*)NULL)
+DLLStructure::DLLStructure() : first((Node*)NULL), last((Node*)NULL), size(0)
 {
     // this->first = (Node*)NULL;
     // this->last = (Node*)NULL;
@@ -125,6 +126,7 @@ DLLStructure::DLLStructure() : first((Node*)NULL), last((Node*)NULL)
 DLLStructure::~DLLStructure()
 {
     if (this->first == (Node*)NULL) { return; }
+    this->size = 0;
     if (this->first == this->last) { delete this->first; return; }
     for (Node* current = this->first->getNext(); current != (Node*)NULL; current = current->getNext())
     {
@@ -138,7 +140,7 @@ DLLStructure::~DLLStructure()
     }
 }
 
-DLLStructure::DLLStructure(int array[], int size) : first((Node*)NULL), last((Node*)NULL)
+DLLStructure::DLLStructure(int array[], int size) : first((Node*)NULL), last((Node*)NULL), size(size)
 {
     // this->first = (Node*)NULL;
     // this->last = (Node*)NULL;
@@ -175,6 +177,7 @@ void DLLStructure::InsertAfter(int valueToInsertAfter, int valueToBeInserted)
             if (current->getNext() != (Node*)NULL) { current->getNext()->setPrev(insert); }
             current->setNext(insert);
             if (current == this->last) { this->last = insert; }
+            this->size++;
             return;
         }
     }
@@ -191,6 +194,7 @@ void DLLStructure::InsertBefore(int valueToInsertBefore, int valueToBeInserted)
                 Node* newFirst = new Node(valueToBeInserted, current, (Node*)NULL);
                 current->setPrev(newFirst);
                 this->first = newFirst;
+                this->size++;
             }
             else
             {
@@ -238,6 +242,7 @@ void DLLStructure::Delete(int value)
                 nxt->setPrev(prv);
                 delete current;
             }
+            this->size--;
             return;
         }
     }
@@ -272,6 +277,7 @@ void DLLStructure::Sort()
 bool DLLStructure::IsEmpty() const
 {
     return this->first == (Node*)NULL;
+    // return this->size == 0;
 }
 
 int DLLStructure::GetHead() const
@@ -292,11 +298,11 @@ int DLLStructure::GetTail() const
  */
 int DLLStructure::GetSize() const
 {
-    int size = 0;
-    for (Node* current = this->first; current != (Node*)NULL; current = current->getNext(), size++);
-    return size;
+    // int size = 0;
+    // for (Node* current = this->first; current != (Node*)NULL; current = current->getNext(), size++);
+    // return size;
+    return this->size;
 }
-
 
 /**
  * We could keep a max and min private class variable/field/member in DLLStructure.
@@ -331,12 +337,23 @@ int DLLStructure::GetMin() const
  * thus any changes to the "copy" would change the original, ruining the point
  * of the copy (at least if we wanted a deep copy).
  */
-DLLStructure::DLLStructure(DLLStructure& dlls) : first(new Node(dlls.GetHead(), (Node*)NULL, (Node*)NULL)), last(this->first)
+DLLStructure::DLLStructure(DLLStructure& dlls) : first((Node*)NULL), last(this->first), size(0)
 {
     // int a[] = {dlls.GetHead()};
     // DLLStructure dll(a, sizeof(a)/sizeof(int)); Could also use delegate constructor (C++11)
+    if (dlls.IsEmpty()) { return; }
+    this->first = new Node(dlls.GetHead(), (Node*)NULL, (Node*)NULL);
+    this->size++;
+    if (dlls.first == dlls.last/* && dlls.GetSize() == 2*/)
+    {
+        this->last = this->first;
+        return;
+    }
     for (Node* current = dlls.last; current != dlls.first; current = current->getPrev())
+    {
         this->InsertAfter(this->GetHead(), current->getData());
+        if (current == dlls.last) { this->last = this->first->getNext(); }
+    }
 }
 
 // Test function to print head and tail
@@ -434,9 +451,31 @@ int main(void)
     // TEST DLLSTRUCTURE CLASS
     DLLStructure* dll_ptr = new DLLStructure();
     delete dll_ptr;
-    int array[] = { -1, 0, 1, 2, 3 };
-    DLLStructure dll(array, sizeof(array)/sizeof(int));
+    int array[] = { 11, 2, 7, 22, 4 };
+    DLLStructure dll_original(array, sizeof(array)/sizeof(int)); // note that 5 is the size of the array
+    DLLStructure dll(dll_original);
     dll.PrintDLL();
+    dll.InsertAfter(7, 13); // To insert 13 after the first occurence of 7
+    dll.PrintDLL(); // the output should be: 11, 2, 7, 13, 22, 4
+    dll.InsertBefore(7, 26); // To insert 26 before the first occurence of 7
+    dll.PrintDLL(); // the output should be: 11, 2, 26, 7, 13, 22, 4
+    dll.Delete(22);
+    dll.PrintDLL(); // the output should be: 11, 2, 26, 7, 13, 4
+    dll.Sort();
+    dll.PrintDLL(); // the output should be: 2, 4, 7, 11, 13, 26
+    std::cout << "isEmpty: " << dll.IsEmpty() << std::endl
+              << "GetHead: " << dll.GetHead() << std::endl
+              << "GetTail: " << dll.GetTail() << std::endl
+              << "GetSize: " << dll.GetSize() << std::endl
+              << "GetMax : " << dll.GetMax () << std::endl
+              << "GetMin : " << dll.GetMin () << std::endl;
+    dll_original.PrintDLL();
+    std::cout << "isEmpty: " << dll_original.IsEmpty() << std::endl
+              << "GetHead: " << dll_original.GetHead() << std::endl
+              << "GetTail: " << dll_original.GetTail() << std::endl
+              << "GetSize: " << dll_original.GetSize() << std::endl
+              << "GetMax : " << dll_original.GetMax () << std::endl
+              << "GetMin : " << dll_original.GetMin () << std::endl;
 
     // Test();
     return EXIT_SUCCESS;

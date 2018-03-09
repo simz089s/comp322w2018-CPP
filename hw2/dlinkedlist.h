@@ -25,6 +25,7 @@ class DLLStructure
 private:
     Node* first;
     Node* last;
+    int size;
 
 public:
     DLLStructure();
