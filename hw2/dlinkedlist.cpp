@@ -6,9 +6,6 @@
  * Student ID:
  * 260 744 353
  * 
- * TODO :
- * - Write test code in main
- * - Implement optimizations for last questions
  */
 
 #include <iostream>
