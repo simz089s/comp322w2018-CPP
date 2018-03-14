@@ -157,7 +157,11 @@ DLLStructure::DLLStructure(int array[], int size) : first((Node*)NULL), last((No
 
 void DLLStructure::PrintDLL() const
 {
-    if (this->first == (Node*)NULL) { return; }
+    if (this->first == (Node*)NULL)
+    {
+        std::cout << std::endl;
+        return;
+    }
     Node* current;
     for (current = this->first; current->getNext() != (Node*)NULL; current = current->getNext())
         { std::cout << current->getData() << ", "; }
@@ -389,6 +393,12 @@ void Test()
     dll.setFst(new Node(1, new Node(2, (Node*)NULL, (Node*)NULL), (Node*)NULL));
     dll.setLst(dll.getFst()->getNext());
     dll.getLst()->setPrev(dll.getFst());
+    dll.InsertAfter(2,0);
+    dll.InsertAfter(2,0);
+    delete dll.getLst();
+    delete dll.getFst()->getNext()->getNext();
+    dll.setLst(dll.getFst()->getNext());
+    dll.getLst()->setNext((Node*)NULL);
     dll.PrintDLL();
     prFstLst(dll);
     std::cout << dll.GetSize() << std::endl;
