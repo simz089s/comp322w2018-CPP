@@ -39,18 +39,21 @@
  * to shared_ptr).
  */
 
-template <class T>
+template <typename T>
 class SmartPointer
 {
     T* raw_ptr;
 public:
-    SmartPointer();
-    SmartPointer(T x);
-    ~SmartPointer();
-    T getValue() const;
-    void setValue(T val);
-    T* get() const;
-    SmartPointer& operator=(SmartPointer& sp);
+    template <class U> SmartPointer<T>();
+    template <class U> SmartPointer<T>(T);
+    ~SmartPointer<T>();
+    template <class U> T getValue() const;
+    template <class U> void setValue(T);
+    template <class U> T* get() const;
+    template <class U> SmartPointer<T>& operator=(SmartPointer<T>&);
+    template <class U> friend SmartPointer<T>& operator+(SmartPointer<T>&, SmartPointer<T>&);
+    // friend SmartPointer<T>& operator-(SmartPointer&, SmartPointer&);
+    // friend SmartPointer<T>& operator*(SmartPointer&, SmartPointer&);
 };
 
 template <class T>
@@ -123,6 +126,12 @@ SmartPointer<T>& SmartPointer<T>::operator=(SmartPointer<T>& sp)
     sp.raw_ptr = nullptr;
     // delete &sp;
     return *this;
+}
+
+template <class T, class L, class R>
+SmartPointer<T>& SmartPointer<T>::operator+(const SmartPointer<L>& l, const SmartPointer<R>& r) -> decltype(l.getValue()+r.getValue())
+{
+    return l.getValue() + r.getValue();
 }
 
 auto f()
