@@ -8,5 +8,10 @@ clang4: smartptr.cpp
 gcc: smartptr.cpp
 	g++ -Wall -Wpedantic -Wextra -Wno-unused -std=gnu++17 -g -ggdb $^ -o smartptr
 
+# For Trottier Ubuntu machines
+gcc5: smartptr.cpp
+	g++-5 -Wall -Wpedantic -Wextra -Wno-unused -std=gnu++17 -g -ggdb $^ -o smartptr
+
+# Does not seem to work
 clang: smartptr.cpp
 	clang++ -Wall -Wpedantic -Wextra -Wno-unused -Wno-unused-parameter -std=c++1z -g -ggdb $^ -o smartptr
