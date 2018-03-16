@@ -1,3 +1,27 @@
+/**
+ * Student name :
+ * Simon
+ * Zheng
+ * 
+ * Student ID :
+ * 260 744 353
+ * 
+ * For Trottier Ubuntu machines :
+ *  g++-5 -Wno-unused -std=gnu++17 -g -ggdb smartptr.cpp
+ * or simply :
+ *  gcc -std=gnu++14 smartptr.cpp
+ * (C++11 should be enough, Ubuntu compiles with GNU extensions by default)
+ * 
+ * Otherwise, compiled for (almost) latest C++ with either :
+ *  g++-7 -Wno-unused -std=gnu++17 -g -ggdb smartptr.cpp
+ *  clang++-4.0 -Wno-unused -Wno-unused-parameter -std=c++1z -g -ggdb smartptr.cpp
+ *  g++-6 -Wno-unused -std=gnu++17 -g -ggdb smartptr.cpp
+ *  clang++-3.8 -Wno-unused -Wno-unused-parameter -std=c++1z -g -ggdb smartptr.cpp
+ * 
+ * Trottier Ubuntu machines seem to use gcc 5.4 and clang 3.8 but clang-3.8
+ * seems to not work as opposed to (any) gcc.
+ */
+
 #include <iostream>
 #include <cstdlib>
 #include <typeinfo>
@@ -39,34 +63,29 @@
  * to shared_ptr).
  */
 
-template <typename T>
+template <class T>
 class SmartPointer
 {
     T* raw_ptr;
 public:
-    template <class U> SmartPointer<T>();
-    template <class U> SmartPointer<T>(T);
-    ~SmartPointer<T>();
-    template <class U> T getValue() const;
-    template <class U> void setValue(T);
-    template <class U> T* get() const;
-    template <class U> SmartPointer<T>& operator=(SmartPointer<T>&);
-    template <class U> friend SmartPointer<T>& operator+(SmartPointer<T>&, SmartPointer<T>&);
-    // friend SmartPointer<T>& operator-(SmartPointer&, SmartPointer&);
-    // friend SmartPointer<T>& operator*(SmartPointer&, SmartPointer&);
+    // SmartPointer<T>() : SmartPointer(0) {} delegate constructor (C++11) also works
+    SmartPointer<T>(T x = 0);
+    ~SmartPointer<T>() { delete raw_ptr; }
+    T getValue() const;
+    void setValue(T);
+    T* get() const { return raw_ptr; }
+    SmartPointer<T>& operator=(SmartPointer<T>&);
+    template <class U> friend SmartPointer<T> operator+(const SmartPointer<T>& l, const SmartPointer<T>& r);
+    template <class U> friend SmartPointer<T> operator-(const SmartPointer<T>& l, const SmartPointer<T>& r);
+    template <class U> friend SmartPointer<T> operator*(const SmartPointer<T>& l, const SmartPointer<T>& r);
 };
 
-template <class T>
-SmartPointer<T>::SmartPointer() : SmartPointer(0)
-{
-}
-
-template <class T>
+template <typename T>
 SmartPointer<T>::SmartPointer(T x) : raw_ptr(nullptr)
 {
     if (x < 0)
     {
-        throw std::invalid_argument("smart pointer does not handle negative numbers");
+        throw std::invalid_argument("negative numbers not supported by smart pointer");
     }
     try
     {
@@ -78,13 +97,7 @@ SmartPointer<T>::SmartPointer(T x) : raw_ptr(nullptr)
     }
 }
 
-template <class T>
-SmartPointer<T>::~SmartPointer()
-{
-    delete raw_ptr;
-}
-
-template <class T>
+template <typename T>
 T SmartPointer<T>::getValue() const
 {
     if (raw_ptr == nullptr)
@@ -97,8 +110,12 @@ T SmartPointer<T>::getValue() const
     }
 }
 
-template <class T>
+template <typename T>
 void SmartPointer<T>::setValue(T val) {
+    if (val < 0)
+    {
+        throw std::invalid_argument("negative numbers not supported by smart pointer");
+    }
     if (raw_ptr == nullptr)
     {
         raw_ptr = new T(val);
@@ -109,13 +126,7 @@ void SmartPointer<T>::setValue(T val) {
     }
 }
 
-template <class T>
-T* SmartPointer<T>::get() const
-{
-    return raw_ptr;
-}
-
-template <class T>
+template <typename T>
 SmartPointer<T>& SmartPointer<T>::operator=(SmartPointer<T>& sp)
 {
     if (this == &sp)
@@ -128,23 +139,39 @@ SmartPointer<T>& SmartPointer<T>::operator=(SmartPointer<T>& sp)
     return *this;
 }
 
-template <class T, class L, class R>
-SmartPointer<T>& SmartPointer<T>::operator+(const SmartPointer<L>& l, const SmartPointer<R>& r) -> decltype(l.getValue()+r.getValue())
+template <typename T>
+SmartPointer<T> operator+(const SmartPointer<T>& l, const SmartPointer<T>& r)
 {
-    return l.getValue() + r.getValue();
+    return SmartPointer<T>(l.getValue() + r.getValue());
 }
 
-auto f()
+template <typename T>
+SmartPointer<T> operator-(const SmartPointer<T>& l, const SmartPointer<T>& r)
 {
-    auto x {0};
-    decltype(x) y;
-    constexpr int z {0};
-    decltype(z) zz = 0;
-    return zz;
+    return SmartPointer<T>(l.getValue() - r.getValue());
 }
+
+template <typename T>
+SmartPointer<T> operator*(const SmartPointer<T>& l, const SmartPointer<T>& r)
+{
+    return SmartPointer<T>(l.getValue() * r.getValue());
+}
+
+// auto f(int a, double b) -> decltype(a+b)
+// {
+//     auto x {0};
+//     decltype(x) y;
+//     constexpr int z {0};
+//     decltype(z) zz = 0;
+//     decltype(zz) zzz {0};
+//     return zz;
+// }
 
 int main(int argc, char** argv)
 {
+    // Question 2
+    std::cout << "Question 2 :" << std::endl;
+
     SmartPointer<int> sPointer(11);
     std::cout << "'SmartPointer<int> sPointer(11)' :" << std::endl;
     std::cout << sPointer.getValue() << std::endl;
@@ -154,7 +181,9 @@ int main(int argc, char** argv)
     std::cout << "'SmartPointer<int> sPointer' and 'setValue(133)' :" << std::endl;
     std::cout << sPointer2.getValue() << std::endl;
 
-    std::cout << "'SmartPointer<int> sPointer(-1)' :" << std::endl;
+    // Question 3
+    std::cout << "\nQuestion 3 :" << std::endl;
+    std::cout << "'SmartPointer<int> sPointer(-1)' (with fake error message) :" << std::endl;
     try
     {
         SmartPointer<int> sPointer3(-1);
@@ -166,6 +195,9 @@ int main(int argc, char** argv)
                   << e.what() << "\nAborted" << std::endl;
     }
 
+    // Question 4
+    std::cout << "\nQuestion 4 :" << std::endl;
+
     SmartPointer<double> sPointer4;
     std::cout << "'SmartPointer<double> sPointer' :" << std::endl;
     std::cout << sPointer4.getValue() << std::endl
@@ -174,7 +206,23 @@ int main(int argc, char** argv)
     SmartPointer<float> sPointer5;
     sPointer5.setValue(13.31f);
     std::cout << "'SmartPointer<float> sPointer' and 'setValue(13.31)' :" << std::endl;
-    std::cout << sPointer5.getValue() << std::endl;
+    std::cout << sPointer5.getValue() << std::endl
+              << typeid(sPointer5.getValue()).name() << std::endl;
+
+    // Question 5
+    std::cout << "\nQuestion 5 :" << std::endl;
+
+    // std::cout << (sPointer4 - sPointer5).getValue() << std::endl;
+
+    SmartPointer<float> sPointer6;
+    sPointer6.setValue(1.5f);
+    SmartPointer<float> sPointer7;
+    sPointer7.setValue(2.5f);
+    SmartPointer<float> sPointer8 = sPointer6 + sPointer7;
+    std::cout << "'SmartPointer<float> sPointer1' and 'setValue(1.5)'" << std::endl
+              << "'SmartPointer<float> sPointer2' and 'setValue(2.5)'" << std::endl
+              << "SmartPointer(1.5) + SmartPointer(2.5) = "
+              << sPointer8.getValue() << std::endl; // prints 4
 
     return EXIT_SUCCESS;
 }
