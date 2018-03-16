@@ -51,20 +51,23 @@ public:
     SmartPointer& operator=(SmartPointer& sp);
 };
 
-SmartPointer::SmartPointer()// : raw_ptr(new int(0))
+SmartPointer::SmartPointer() : SmartPointer(0)
 {
-    SmartPointer(0);
 }
 
 SmartPointer::SmartPointer(int x)// : raw_ptr(new int(x))
 {
+    if (x < 0)
+    {
+        throw std::invalid_argument("smart pointer does not handle negative numbers");
+    }
     try
     {
         raw_ptr = new int(x);
     }
     catch (const std::bad_alloc& e)
     {
-        std::cout << "Failed to allocate variable: " << e.what() << std::endl;
+        std::cout << "Failure to allocate variable: " << e.what() << std::endl;
     }
 }
 
@@ -113,17 +116,33 @@ SmartPointer& SmartPointer::operator=(SmartPointer& sp)
     return *this;
 }
 
-auto f() { return 0; }
+auto f()
+{
+    auto x {0};
+    decltype(x) y;
+    constexpr int z {0};
+    return y;
+}
 
 int main(int argc, char** argv)
 {
-    auto x {8};
-    decltype(x) z;
-    constexpr int y {0};
     SmartPointer sPointer(11);
     std::cout << sPointer.getValue() << std::endl;
+
     SmartPointer sPointer2;
     sPointer2.setValue(133);
     std::cout << sPointer2.getValue() << std::endl;
+
+    try
+    {
+        SmartPointer sPointer3(-1);
+    }
+    catch (const std::invalid_argument e)
+    {
+        std::cout << "terminate called after throwing an instance of 'std::invalid_argument'"
+                  << std::endl << "  what():  "
+                  << e.what() << "\nAborted" << std::endl;
+    }
+
     return EXIT_SUCCESS;
 }
