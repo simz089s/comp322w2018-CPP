@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstdlib>
 
+// using namespace std;
+
 /**
  * Question 1
  * =============================================================================
@@ -40,17 +42,74 @@ class SmartPointer
 {
     int* raw_ptr;
 public:
-    SmartPointer() : raw_ptr(nullptr) {}
-    SmartPointer(int x) : raw_ptr(new int(x)) {}
-    ~SmartPointer() {}
-    int* get() const { return raw_ptr; }
+    SmartPointer();
+    SmartPointer(int x);
+    ~SmartPointer();
+    int getValue() const;
+    void setValue(int val);
+    int* get() const;
     SmartPointer& operator=(SmartPointer& sp);
 };
 
+SmartPointer::SmartPointer()// : raw_ptr(new int(0))
+{
+    SmartPointer(0);
+}
+
+SmartPointer::SmartPointer(int x)// : raw_ptr(new int(x))
+{
+    try
+    {
+        raw_ptr = new int(x);
+    }
+    catch (const std::bad_alloc& e)
+    {
+        std::cout << "Failed to allocate variable: " << e.what() << std::endl;
+    }
+}
+
+SmartPointer::~SmartPointer()
+{
+    delete raw_ptr;
+}
+
+int SmartPointer::getValue() const
+{
+    if (raw_ptr == nullptr)
+    {
+        throw std::invalid_argument("getting value from null pointer exception");
+    }
+    else
+    {
+        return *raw_ptr;
+    }
+}
+
+void SmartPointer::setValue(int val) {
+    if (raw_ptr == nullptr)
+    {
+        raw_ptr = new int(val);
+    }
+    else
+    {
+        *raw_ptr = val;
+    }
+}
+
+int* SmartPointer::get() const
+{
+    return raw_ptr;
+}
+
 SmartPointer& SmartPointer::operator=(SmartPointer& sp)
 {
+    if (this == &sp)
+    {
+        return sp;
+    }
     raw_ptr = sp.raw_ptr;
     sp.raw_ptr = nullptr;
+    // delete &sp;
     return *this;
 }
 
@@ -62,5 +121,9 @@ int main(int argc, char** argv)
     decltype(x) z;
     constexpr int y {0};
     SmartPointer sPointer(11);
+    std::cout << sPointer.getValue() << std::endl;
+    SmartPointer sPointer2;
+    sPointer2.setValue(133);
+    std::cout << sPointer2.getValue() << std::endl;
     return EXIT_SUCCESS;
 }
