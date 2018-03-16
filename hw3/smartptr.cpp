@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdlib>
+#include <typeinfo>
 
 // using namespace std;
 
@@ -38,24 +39,27 @@
  * to shared_ptr).
  */
 
+template <class T>
 class SmartPointer
 {
-    int* raw_ptr;
+    T* raw_ptr;
 public:
     SmartPointer();
-    SmartPointer(int x);
+    SmartPointer(T x);
     ~SmartPointer();
-    int getValue() const;
-    void setValue(int val);
-    int* get() const;
+    T getValue() const;
+    void setValue(T val);
+    T* get() const;
     SmartPointer& operator=(SmartPointer& sp);
 };
 
-SmartPointer::SmartPointer() : SmartPointer(0)
+template <class T>
+SmartPointer<T>::SmartPointer() : SmartPointer(0)
 {
 }
 
-SmartPointer::SmartPointer(int x)// : raw_ptr(new int(x))
+template <class T>
+SmartPointer<T>::SmartPointer(T x) : raw_ptr(nullptr)
 {
     if (x < 0)
     {
@@ -63,7 +67,7 @@ SmartPointer::SmartPointer(int x)// : raw_ptr(new int(x))
     }
     try
     {
-        raw_ptr = new int(x);
+        raw_ptr = new T(x);
     }
     catch (const std::bad_alloc& e)
     {
@@ -71,12 +75,14 @@ SmartPointer::SmartPointer(int x)// : raw_ptr(new int(x))
     }
 }
 
-SmartPointer::~SmartPointer()
+template <class T>
+SmartPointer<T>::~SmartPointer()
 {
     delete raw_ptr;
 }
 
-int SmartPointer::getValue() const
+template <class T>
+T SmartPointer<T>::getValue() const
 {
     if (raw_ptr == nullptr)
     {
@@ -88,10 +94,11 @@ int SmartPointer::getValue() const
     }
 }
 
-void SmartPointer::setValue(int val) {
+template <class T>
+void SmartPointer<T>::setValue(T val) {
     if (raw_ptr == nullptr)
     {
-        raw_ptr = new int(val);
+        raw_ptr = new T(val);
     }
     else
     {
@@ -99,12 +106,14 @@ void SmartPointer::setValue(int val) {
     }
 }
 
-int* SmartPointer::get() const
+template <class T>
+T* SmartPointer<T>::get() const
 {
     return raw_ptr;
 }
 
-SmartPointer& SmartPointer::operator=(SmartPointer& sp)
+template <class T>
+SmartPointer<T>& SmartPointer<T>::operator=(SmartPointer<T>& sp)
 {
     if (this == &sp)
     {
@@ -121,21 +130,25 @@ auto f()
     auto x {0};
     decltype(x) y;
     constexpr int z {0};
-    return y;
+    decltype(z) zz = 0;
+    return zz;
 }
 
 int main(int argc, char** argv)
 {
-    SmartPointer sPointer(11);
+    SmartPointer<int> sPointer(11);
+    std::cout << "'SmartPointer<int> sPointer(11)' :" << std::endl;
     std::cout << sPointer.getValue() << std::endl;
 
-    SmartPointer sPointer2;
+    SmartPointer<int> sPointer2;
     sPointer2.setValue(133);
+    std::cout << "'SmartPointer<int> sPointer' and 'setValue(133)' :" << std::endl;
     std::cout << sPointer2.getValue() << std::endl;
 
+    std::cout << "'SmartPointer<int> sPointer(-1)' :" << std::endl;
     try
     {
-        SmartPointer sPointer3(-1);
+        SmartPointer<int> sPointer3(-1);
     }
     catch (const std::invalid_argument e)
     {
@@ -143,6 +156,16 @@ int main(int argc, char** argv)
                   << std::endl << "  what():  "
                   << e.what() << "\nAborted" << std::endl;
     }
+
+    SmartPointer<double> sPointer4;
+    std::cout << "'SmartPointer<double> sPointer' :" << std::endl;
+    std::cout << sPointer4.getValue() << std::endl
+              << typeid(sPointer4.getValue()).name() << std::endl;
+
+    SmartPointer<float> sPointer5;
+    sPointer5.setValue(13.31f);
+    std::cout << "'SmartPointer<float> sPointer' and 'setValue(13.31)' :" << std::endl;
+    std::cout << sPointer5.getValue() << std::endl;
 
     return EXIT_SUCCESS;
 }
