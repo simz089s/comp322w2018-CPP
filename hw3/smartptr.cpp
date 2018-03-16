@@ -36,7 +36,31 @@
  * to shared_ptr).
  */
 
+class SmartPointer
+{
+    int* raw_ptr;
+public:
+    SmartPointer() : raw_ptr(nullptr) {}
+    SmartPointer(int x) : raw_ptr(new int(x)) {}
+    ~SmartPointer() {}
+    int* get() const { return raw_ptr; }
+    SmartPointer& operator=(SmartPointer& sp);
+};
+
+SmartPointer& SmartPointer::operator=(SmartPointer& sp)
+{
+    raw_ptr = sp.raw_ptr;
+    sp.raw_ptr = nullptr;
+    return *this;
+}
+
+auto f() { return 0; }
+
 int main(int argc, char** argv)
 {
+    auto x {8};
+    decltype(x) z;
+    constexpr int y {0};
+    SmartPointer sPointer(11);
     return EXIT_SUCCESS;
 }
