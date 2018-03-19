@@ -63,18 +63,19 @@
  * to shared_ptr).
  */
 
+// auto_ptr has a copy constructor and assignment operator but not unique_ptr (see comments)
 template <class T>
 class SmartPointer
 {
     T* raw_ptr;
 public:
-    // SmartPointer<T>() : SmartPointer(0) {} delegate constructor (C++11) also works
-    SmartPointer<T>(T x = 0);
+    SmartPointer<T>(T x = 0); // SmartPointer<T>() : SmartPointer(0) {} delegate constructor (C++11) also works
+	SmartPointer<T>(SmartPointer<T>&);// = delete; // or make them private
     ~SmartPointer<T>();
     T getValue() const;
     void setValue(T);
     T* get() const { return raw_ptr; }
-	SmartPointer<T>& operator=(SmartPointer<T>&);
+	SmartPointer<T>& operator=(SmartPointer<T>&);// = delete; // or make them private
     template <class U> friend SmartPointer<T> operator+(const SmartPointer<T>& l, const SmartPointer<T>& r);
     template <class U> friend SmartPointer<T> operator-(const SmartPointer<T>& l, const SmartPointer<T>& r);
     template <class U> friend SmartPointer<T> operator*(const SmartPointer<T>& l, const SmartPointer<T>& r);
@@ -95,6 +96,13 @@ SmartPointer<T>::SmartPointer(T x) : raw_ptr(nullptr)
     {
         std::cout << "Failure to allocate variable: " << e.what() << std::endl;
     }
+}
+
+template <typename T>
+SmartPointer<T>::SmartPointer<T>(SmartPointer<T>& original)
+{
+	raw_ptr = original.raw_ptr;
+	original.raw_ptr = nullptr;
 }
 
 template <typename T>
@@ -232,7 +240,7 @@ int main(int argc, char** argv)
               << sPointer8.getValue() << std::endl // prints 4
 			  << typeid(sPointer8.getValue()).name() << std::endl;
 
-	// Copying
+	// Copying (or rather moving)
 	SmartPointer<float> sp1(1);
 	SmartPointer<float> sp2;
 	sp2 = sp1;
@@ -245,7 +253,18 @@ int main(int argc, char** argv)
 		std::cout << e.what() << std::endl;
 	}
 	std::cout << sp2.getValue() << std::endl
-			  << typeid(sPointer8.getValue()).name() << std::endl;
+			  << typeid(sp2.getValue()).name() << std::endl;
+	SmartPointer<float> sp3(sp2);
+	try
+	{
+		std::cout << sp2.getValue() << std::endl;
+	}
+	catch (const std::invalid_argument e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+	std::cout << sp3.getValue() << std::endl
+		<< typeid(sp3.getValue()).name() << std::endl;
 
     return EXIT_SUCCESS;
 }
