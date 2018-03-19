@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Student name :
  * Simon
  * Zheng
@@ -70,11 +70,11 @@ class SmartPointer
 public:
     // SmartPointer<T>() : SmartPointer(0) {} delegate constructor (C++11) also works
     SmartPointer<T>(T x = 0);
-    ~SmartPointer<T>() { delete raw_ptr; }
+    ~SmartPointer<T>();
     T getValue() const;
     void setValue(T);
     T* get() const { return raw_ptr; }
-    SmartPointer<T>& operator=(SmartPointer<T>&);
+	SmartPointer<T>& operator=(SmartPointer<T>&);
     template <class U> friend SmartPointer<T> operator+(const SmartPointer<T>& l, const SmartPointer<T>& r);
     template <class U> friend SmartPointer<T> operator-(const SmartPointer<T>& l, const SmartPointer<T>& r);
     template <class U> friend SmartPointer<T> operator*(const SmartPointer<T>& l, const SmartPointer<T>& r);
@@ -95,6 +95,13 @@ SmartPointer<T>::SmartPointer(T x) : raw_ptr(nullptr)
     {
         std::cout << "Failure to allocate variable: " << e.what() << std::endl;
     }
+}
+
+template <typename T>
+SmartPointer<T>::~SmartPointer<T>()
+{
+	delete raw_ptr;
+	raw_ptr = nullptr;
 }
 
 template <typename T>
@@ -129,14 +136,14 @@ void SmartPointer<T>::setValue(T val) {
 template <typename T>
 SmartPointer<T>& SmartPointer<T>::operator=(SmartPointer<T>& sp)
 {
-    if (this == &sp)
-    {
-        return sp;
-    }
-    raw_ptr = sp.raw_ptr;
-    sp.raw_ptr = nullptr;
-    // delete &sp;
-    return *this;
+	if (this == &sp)
+	{
+		return sp;
+	}
+	delete raw_ptr;
+	raw_ptr = sp.raw_ptr;
+	sp.raw_ptr = nullptr;
+	return *this;
 }
 
 template <typename T>
@@ -222,7 +229,23 @@ int main(int argc, char** argv)
     std::cout << "'SmartPointer<float> sPointer1' and 'setValue(1.5)'" << std::endl
               << "'SmartPointer<float> sPointer2' and 'setValue(2.5)'" << std::endl
               << "SmartPointer(1.5) + SmartPointer(2.5) = "
-              << sPointer8.getValue() << std::endl; // prints 4
+              << sPointer8.getValue() << std::endl // prints 4
+			  << typeid(sPointer8.getValue()).name() << std::endl;
+
+	// Copying
+	SmartPointer<float> sp1(1);
+	SmartPointer<float> sp2;
+	sp2 = sp1;
+	try
+	{
+		std::cout << sp1.getValue() << std::endl;
+	}
+	catch (const std::invalid_argument e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+	std::cout << sp2.getValue() << std::endl
+			  << typeid(sPointer8.getValue()).name() << std::endl;
 
     return EXIT_SUCCESS;
 }
