@@ -69,7 +69,7 @@ class SmartPointer
 {
     T* raw_ptr;
 public:
-    SmartPointer<T>(T x = 0); // SmartPointer<T>() : SmartPointer(0) {} delegate constructor (C++11) also works
+    SmartPointer<T>(T const x = 0); // SmartPointer<T>() : SmartPointer(0) {} delegate constructor (C++11) also works
 	SmartPointer<T>(SmartPointer<T>&);// = delete; // or make them private
     ~SmartPointer<T>();
     T getValue() const;
@@ -82,7 +82,7 @@ public:
 };
 
 template <typename T>
-SmartPointer<T>::SmartPointer(T x) : raw_ptr(nullptr)
+SmartPointer<T>::SmartPointer(T const x) : raw_ptr(nullptr)
 {
     if (x < 0)
     {
@@ -99,7 +99,7 @@ SmartPointer<T>::SmartPointer(T x) : raw_ptr(nullptr)
 }
 
 template <typename T>
-SmartPointer<T>::SmartPointer<T>(SmartPointer<T>& original)
+SmartPointer<T>::SmartPointer(SmartPointer<T>& original)
 {
 	raw_ptr = original.raw_ptr;
 	original.raw_ptr = nullptr;
