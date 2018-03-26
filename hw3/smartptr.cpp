@@ -1,4 +1,5 @@
-﻿/**
+﻿// <-- UTF-8 BOM right there
+/**
  * Student name :
  * Simon
  * Zheng
@@ -64,25 +65,41 @@
  */
 
 // auto_ptr has a copy constructor and assignment operator but not unique_ptr (see comments)
-template <class T>
+// template <class T>
+template <typename T>
 class SmartPointer
 {
-    T* raw_ptr;
+    T* raw_ptr = new T{0}; // Default value redundancy, braces protect against narrowing
 public:
-    SmartPointer<T>(T const x = 0); // SmartPointer<T>() : SmartPointer(0) {} delegate constructor (C++11) also works
-	SmartPointer<T>(SmartPointer<T>&);// = delete; // or make them private
-    ~SmartPointer<T>();
+    // SmartPointer<T>() = default; // Default constructor
+    // SmartPointer<T>() : SmartPointer{0} {} // Delegate constructor for default constructor
+    SmartPointer(T const = 0); // Using default parameter for default constructor
+	SmartPointer(SmartPointer<T>&);// = delete; // or make them private
+    ~SmartPointer();
     T getValue() const;
     void setValue(T);
     T* get() const { return raw_ptr; }
-	SmartPointer<T>& operator=(SmartPointer<T>&);// = delete; // or make them private
-    template <class U> friend SmartPointer<T> operator+(const SmartPointer<T>& l, const SmartPointer<T>& r);
-    template <class U> friend SmartPointer<T> operator-(const SmartPointer<T>& l, const SmartPointer<T>& r);
-    template <class U> friend SmartPointer<T> operator*(const SmartPointer<T>& l, const SmartPointer<T>& r);
+    void set(T*);
+	SmartPointer& operator=(SmartPointer&);// = delete; // or make them private
+    friend SmartPointer<T> operator+(const SmartPointer& l, const SmartPointer& r)
+    {
+        return SmartPointer<T>(l.getValue() + r.getValue());
+    }
+    friend SmartPointer<T> operator-(const SmartPointer<T>& l, const SmartPointer<T>& r)
+    {
+        return SmartPointer<T>(l.getValue() - r.getValue());
+    }
+    friend SmartPointer<T> operator*(const SmartPointer<T>& l, const SmartPointer<T>& r)
+    {
+        return SmartPointer<T>(l.getValue() * r.getValue());
+    }
 };
 
+/**
+ * General constructor
+ */
 template <typename T>
-SmartPointer<T>::SmartPointer(T const x) : raw_ptr(nullptr)
+SmartPointer<T>::SmartPointer(T const x) : raw_ptr{nullptr}
 {
     if (x < 0)
     {
@@ -98,13 +115,19 @@ SmartPointer<T>::SmartPointer(T const x) : raw_ptr(nullptr)
     }
 }
 
+/**
+ * Copy constructor
+ */
 template <typename T>
-SmartPointer<T>::SmartPointer(SmartPointer<T>& original) : raw_ptr(original.raw_ptr)
+SmartPointer<T>::SmartPointer(SmartPointer<T>& original) : raw_ptr{original.raw_ptr}
 {
 	// raw_ptr = original.raw_ptr;
 	original.raw_ptr = nullptr;
 }
 
+/**
+ * Destructor
+ */
 template <typename T>
 SmartPointer<T>::~SmartPointer<T>()
 {
@@ -112,6 +135,9 @@ SmartPointer<T>::~SmartPointer<T>()
 	raw_ptr = nullptr;
 }
 
+/**
+ * Getter for pointer value
+ */
 template <typename T>
 T SmartPointer<T>::getValue() const
 {
@@ -125,8 +151,12 @@ T SmartPointer<T>::getValue() const
     }
 }
 
+/**
+ * Setter for pointer value
+ */
 template <typename T>
-void SmartPointer<T>::setValue(T val) {
+void SmartPointer<T>::setValue(T val)
+{
     if (val < 0)
     {
         throw std::invalid_argument("negative numbers not supported by smart pointer");
@@ -141,6 +171,19 @@ void SmartPointer<T>::setValue(T val) {
     }
 }
 
+/**
+ * Setter for pointer
+ */
+template <typename T>
+void SmartPointer<T>::set(T* ptr)
+{
+    delete raw_ptr;
+    raw_ptr = ptr;
+}
+
+/**
+ * Equal operator
+ */
 template <typename T>
 SmartPointer<T>& SmartPointer<T>::operator=(SmartPointer<T>& sp)
 {
@@ -152,24 +195,6 @@ SmartPointer<T>& SmartPointer<T>::operator=(SmartPointer<T>& sp)
 	raw_ptr = sp.raw_ptr;
 	sp.raw_ptr = nullptr;
 	return *this;
-}
-
-template <typename T>
-SmartPointer<T> operator+(const SmartPointer<T>& l, const SmartPointer<T>& r)
-{
-    return SmartPointer<T>(l.getValue() + r.getValue());
-}
-
-template <typename T>
-SmartPointer<T> operator-(const SmartPointer<T>& l, const SmartPointer<T>& r)
-{
-    return SmartPointer<T>(l.getValue() - r.getValue());
-}
-
-template <typename T>
-SmartPointer<T> operator*(const SmartPointer<T>& l, const SmartPointer<T>& r)
-{
-    return SmartPointer<T>(l.getValue() * r.getValue());
 }
 
 // auto f(int a, double b) -> decltype(a+b)
@@ -233,6 +258,7 @@ int main(int argc, char** argv)
     sPointer6.setValue(1.5f);
     SmartPointer<float> sPointer7;
     sPointer7.setValue(2.5f);
+    // SmartPointer<float> sPointer8 = sPointer6 + sPointer7;
     SmartPointer<float> sPointer8 = sPointer6 + sPointer7;
     std::cout << "'SmartPointer<float> sPointer1' and 'setValue(1.5)'" << std::endl
               << "'SmartPointer<float> sPointer2' and 'setValue(2.5)'" << std::endl
