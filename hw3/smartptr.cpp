@@ -99,9 +99,9 @@ SmartPointer<T>::SmartPointer(T const x) : raw_ptr(nullptr)
 }
 
 template <typename T>
-SmartPointer<T>::SmartPointer(SmartPointer<T>& original)
+SmartPointer<T>::SmartPointer(SmartPointer<T>& original) : raw_ptr(original.raw_ptr)
 {
-	raw_ptr = original.raw_ptr;
+	// raw_ptr = original.raw_ptr;
 	original.raw_ptr = nullptr;
 }
 
@@ -240,10 +240,12 @@ int main(int argc, char** argv)
               << sPointer8.getValue() << std::endl // prints 4
 			  << typeid(sPointer8.getValue()).name() << std::endl;
 
-	// Copying (or rather moving)
+	// Copying assignment operator (or rather moving)
+    std::cout << "\nCopy assignment operator" << std::endl;
 	SmartPointer<float> sp1(1);
 	SmartPointer<float> sp2;
 	sp2 = sp1;
+    std::cout << "Original : ";
 	try
 	{
 		std::cout << sp1.getValue() << std::endl;
@@ -252,9 +254,13 @@ int main(int argc, char** argv)
 	{
 		std::cout << e.what() << std::endl;
 	}
-	std::cout << sp2.getValue() << std::endl
+	std::cout << "New : " << sp2.getValue()
 			  << typeid(sp2.getValue()).name() << std::endl;
+    
+    // Copy contructor
+    std::cout << "\nCopy constructor" << std::endl;
 	SmartPointer<float> sp3(sp2);
+    std::cout << "Original : ";
 	try
 	{
 		std::cout << sp2.getValue() << std::endl;
@@ -263,8 +269,21 @@ int main(int argc, char** argv)
 	{
 		std::cout << e.what() << std::endl;
 	}
-	std::cout << sp3.getValue() << std::endl
-		<< typeid(sp3.getValue()).name() << std::endl;
+	std::cout << "New : " << sp3.getValue()
+		      << typeid(sp3.getValue()).name() << std::endl;
+    
+	SmartPointer<float> sp4 = sp3;
+    std::cout << "Original : ";
+	try
+	{
+		std::cout << sp3.getValue() << std::endl;
+	}
+	catch (const std::invalid_argument e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+	std::cout << "New : " << sp4.getValue()
+		      << typeid(sp4.getValue()).name() << std::endl;
 
     return EXIT_SUCCESS;
 }
