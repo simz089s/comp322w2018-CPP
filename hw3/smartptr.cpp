@@ -1,23 +1,26 @@
 ﻿// <-- UTF-8 BOM right there
 /**
- * Student name :
- * Simon
- * Zheng
+ * Student
+ *  First name: Simon
+ *  Last name:  Zheng
+ *  ID:         260 744 353
  * 
- * Student ID :
- * 260 744 353
+ * Simplest :
+ *  g++ -Wno-unused -std=gnu++14 smartptr.cpp
+ *  clang++ -Wno-unused -Wno-unused-parameter -std=gnu++14 smartptr.cpp
  * 
- * For Trottier Ubuntu machines :
- *  g++-5 -Wno-unused -std=gnu++17 -g -ggdb smartptr.cpp
- * or simply :
- *  gcc -std=gnu++14 smartptr.cpp
- * (C++11 should be enough, Ubuntu compiles with GNU extensions by default)
+ * Otherwise, compiled for latest C++ and compiler with either :
  * 
- * Otherwise, compiled for (almost) latest C++ with either :
- *  g++-7 -Wno-unused -std=gnu++17 -g -ggdb smartptr.cpp
- *  clang++-4.0 -Wno-unused -Wno-unused-parameter -std=c++1z -g -ggdb smartptr.cpp
- *  g++-6 -Wno-unused -std=gnu++17 -g -ggdb smartptr.cpp
- *  clang++-3.8 -Wno-unused -Wno-unused-parameter -std=c++1z -g -ggdb smartptr.cpp
+ * gcc C++17 + GNU extensions (or as I like to call it, GNU/extensions)
+ *  g++-7 -Wno-unused -std=gnu++17 smartptr.cpp
+ *  g++-7 -Wno-unused -std=gnu++2a smartptr.cpp
+ * 
+ * clang C++17 + GNU extensions
+ *  clang++-5.0 -Wno-unused -Wno-unused-parameter -std=gnu++1z smartptr.cpp
+ *  clang++-5.0 -Wno-unused -Wno-unused-parameter -std=gnu++2a smartptr.cpp
+ * 
+ * clang 3.8 C++17 + GNU extensions
+ *  clang++-3.8 -Wno-unused -Wno-unused-parameter -std=gnu++1z smartptr.cpp
  * 
  * Trottier Ubuntu machines seem to use gcc 5.4 and clang 3.8 but clang-3.8
  * seems to not work as opposed to (any) gcc.
