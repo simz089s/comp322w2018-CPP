@@ -77,24 +77,41 @@ public:
     // SmartPointer<T>() = default; // Default constructor
     // SmartPointer<T>() : SmartPointer{0} {} // Delegate constructor for default constructor
     SmartPointer(T const = 0); // Using default parameter for default constructor
-	SmartPointer(SmartPointer<T>&);// = delete; // or make them private
+	SmartPointer(SmartPointer<T>& original) : raw_ptr{original.raw_ptr}// = delete; // or make them private
+    {
+        // raw_ptr = original.raw_ptr;
+        original.raw_ptr = nullptr;
+    }
     ~SmartPointer();
+
     T getValue() const;
     void setValue(T);
     T* get() const { return raw_ptr; }
     void set(T*);
+
 	SmartPointer& operator=(SmartPointer&);// = delete; // or make them private
-    friend SmartPointer<T> operator+(const SmartPointer& l, const SmartPointer& r)
+    friend auto operator+(const SmartPointer& l, const SmartPointer& r) -> SmartPointer<T>& // or friend SmartPointer<T> operator+(...) {}
     {
-        return SmartPointer<T>(l.getValue() + r.getValue());
+        // + seems to act less nicely than - and *, maybe because of versatility
+        auto const tmp {l.getValue() + r.getValue()}; // or T const tmp = l.getValue()+r.getValue();
+        SmartPointer<T>* sp = new SmartPointer<T>(tmp);
+        return *sp;
     }
-    friend SmartPointer<T> operator-(const SmartPointer<T>& l, const SmartPointer<T>& r)
+    friend SmartPointer<T>& operator-(const SmartPointer<T>& l, const SmartPointer<T>& r)
     {
-        return SmartPointer<T>(l.getValue() - r.getValue());
+        if (l.getValue() < r.getValue())
+        {
+            throw std::invalid_argument("negative numbers not supported by smart pointer");
+        }
+        T const tmp = l.getValue() - r.getValue();
+        SmartPointer<T>* sp = new SmartPointer<T>(tmp);
+        return *sp;
     }
-    friend SmartPointer<T> operator*(const SmartPointer<T>& l, const SmartPointer<T>& r)
+    friend SmartPointer<T>& operator*(const SmartPointer<T>& l, const SmartPointer<T>& r)
     {
-        return SmartPointer<T>(l.getValue() * r.getValue());
+        T const tmp = l.getValue() * r.getValue();
+        SmartPointer<T>* sp = new SmartPointer<T>(tmp);
+        return *sp;
     }
 };
 
@@ -116,16 +133,6 @@ SmartPointer<T>::SmartPointer(T const x) : raw_ptr{nullptr}
     {
         std::cout << "Failure to allocate variable: " << e.what() << std::endl;
     }
-}
-
-/**
- * Copy constructor
- */
-template <typename T>
-SmartPointer<T>::SmartPointer(SmartPointer<T>& original) : raw_ptr{original.raw_ptr}
-{
-	// raw_ptr = original.raw_ptr;
-	original.raw_ptr = nullptr;
 }
 
 /**
@@ -200,16 +207,6 @@ SmartPointer<T>& SmartPointer<T>::operator=(SmartPointer<T>& sp)
 	return *this;
 }
 
-// auto f(int a, double b) -> decltype(a+b)
-// {
-//     auto x {0};
-//     decltype(x) y;
-//     constexpr int z {0};
-//     decltype(z) zz = 0;
-//     decltype(zz) zzz {0};
-//     return zz;
-// }
-
 int main(int argc, char** argv)
 {
     // Question 2
@@ -226,7 +223,7 @@ int main(int argc, char** argv)
 
     // Question 3
     std::cout << "\nQuestion 3 :" << std::endl;
-    std::cout << "'SmartPointer<int> sPointer(-1)' (with fake error message) :" << std::endl;
+    std::cout << "'SmartPointer<int> sPointer(-1)' (with fake error message, real one after what():) :" << std::endl;
     try
     {
         SmartPointer<int> sPointer3(-1);
@@ -255,6 +252,7 @@ int main(int argc, char** argv)
     // Question 5
     std::cout << "\nQuestion 5 :" << std::endl;
 
+    // Different types
     // std::cout << (sPointer4 - sPointer5).getValue() << std::endl;
 
     SmartPointer<float> sPointer6;
@@ -267,6 +265,22 @@ int main(int argc, char** argv)
               << "'SmartPointer<float> sPointer2' and 'setValue(2.5)'" << std::endl
               << "SmartPointer(1.5) + SmartPointer(2.5) = "
               << sPointer8.getValue() << std::endl // prints 4
+			  << typeid(sPointer8.getValue()).name() << std::endl;
+    std::cout << "SmartPointer(1.5) - SmartPointer(2.5) = ";
+    try
+    {
+        sPointer8 = sPointer6 - sPointer7;
+    }
+    catch (const std::invalid_argument e)
+    {
+        sPointer8 = sPointer7 - sPointer6;
+        std::cout << e.what() << "\nSmartPointer(2.5) - SmartPointer(1.5) = "
+                  << sPointer8.getValue() << std::endl // prints 1
+                  << typeid(sPointer8.getValue()).name() << std::endl;
+    }
+    sPointer8 = sPointer6 * sPointer7;
+    std::cout << "SmartPointer(1.5) * SmartPointer(2.5) = "
+              << sPointer8.getValue() << std::endl // prints 3.75
 			  << typeid(sPointer8.getValue()).name() << std::endl;
 
 	// Copying assignment operator (or rather moving)
