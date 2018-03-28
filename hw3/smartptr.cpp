@@ -67,57 +67,75 @@
  * to shared_ptr).
  */
 
-// auto_ptr has a copy constructor and assignment operator but not unique_ptr (see comments)
-// template <class T>
 template <typename T>
+// template <class T>
 class SmartPointer
 {
-    T* raw_ptr = new T{0}; // Default value redundancy, braces protect against narrowing
+    T* raw_ptr = nullptr;
+    // T* raw_ptr = new T{0}; Could also be this, redundant with default constructor
+    size_t size = 0;
+    bool isArray = false;
 public:
     // SmartPointer<T>() = default; // Default constructor
     // SmartPointer<T>() : SmartPointer{0} {} // Delegate constructor for default constructor
-    SmartPointer(T const = 0); // Using default parameter for default constructor
-	SmartPointer(SmartPointer<T>& original) : raw_ptr{original.raw_ptr}// = delete; // or make them private
-    {
-        // raw_ptr = original.raw_ptr;
-        original.raw_ptr = nullptr;
-    }
+    SmartPointer(T*); // Constructing a smart pointer out of a raw pointer
+    SmartPointer(T const = 0); // Using default parameter for default constructor (redundant)
+    SmartPointer(T [], int); // Array constructor
+	SmartPointer(SmartPointer&); // Copy constructor
     ~SmartPointer();
 
     T getValue() const;
     void setValue(T);
     T* get() const { return raw_ptr; }
-    void set(T*);
+    auto getSize() const -> decltype(size);
 
-	SmartPointer& operator=(SmartPointer&);// = delete; // or make them private
-    friend auto operator+(const SmartPointer& l, const SmartPointer& r) -> SmartPointer<T>& // or friend SmartPointer<T> operator+(...) {}
+	SmartPointer& operator=(SmartPointer&);
+    friend SmartPointer<T> operator+(const SmartPointer<T>& l, const SmartPointer<T>& r)
     {
-        // + seems to act less nicely than - and *, maybe because of versatility
-        auto const tmp {l.getValue() + r.getValue()}; // or T const tmp = l.getValue()+r.getValue();
-        SmartPointer<T>* sp = new SmartPointer<T>(tmp);
-        return *sp;
+        auto const tmpVal {l.getValue() + r.getValue()}; // or T const tmp = l.getValue()+r.getValue();
+        SmartPointer<T> tmpSP{tmpVal};
+        return tmpSP;
     }
-    friend SmartPointer<T>& operator-(const SmartPointer<T>& l, const SmartPointer<T>& r)
+    friend SmartPointer<T> operator-(const SmartPointer<T>& l, const SmartPointer<T>& r)
     {
         if (l.getValue() < r.getValue())
         {
             throw std::invalid_argument("negative numbers not supported by smart pointer");
         }
-        T const tmp = l.getValue() - r.getValue();
-        SmartPointer<T>* sp = new SmartPointer<T>(tmp);
-        return *sp;
+        T const tmpVal = l.getValue() - r.getValue();
+        SmartPointer<T> tmpSP{tmpVal};
+        return tmpSP;
     }
-    friend SmartPointer<T>& operator*(const SmartPointer<T>& l, const SmartPointer<T>& r)
+    friend SmartPointer<T> operator*(const SmartPointer<T>& l, const SmartPointer<T>& r)
     {
-        T const tmp = l.getValue() * r.getValue();
-        SmartPointer<T>* sp = new SmartPointer<T>(tmp);
-        return *sp;
+        T const tmpVal = l.getValue() * r.getValue();
+        SmartPointer<T> tmpSP{tmpVal};
+        return tmpSP;
     }
 };
 
 /**
- * General constructor
+ * Constructors and destructor
  */
+
+template <typename T>
+SmartPointer<T>::SmartPointer(T* p)// : SmartPointer{*p} can't cover NULL with delegate constructor
+{
+    if (p == nullptr)
+    {
+        raw_ptr = nullptr;
+    }
+    else if (*p < 0)
+    {
+        throw std::invalid_argument("negative numbers not supported by smart pointer");
+    }
+    else
+    {
+        raw_ptr = new T{*p};
+        size = 1;
+    }
+}
+
 template <typename T>
 SmartPointer<T>::SmartPointer(T const x) : raw_ptr{nullptr}
 {
@@ -127,7 +145,8 @@ SmartPointer<T>::SmartPointer(T const x) : raw_ptr{nullptr}
     }
     try
     {
-        raw_ptr = new T(x);
+        raw_ptr = new T{x};
+        size = 1;
     }
     catch (const std::bad_alloc& e)
     {
@@ -135,19 +154,61 @@ SmartPointer<T>::SmartPointer(T const x) : raw_ptr{nullptr}
     }
 }
 
-/**
- * Destructor
- */
+template <typename T>
+SmartPointer<T>::SmartPointer(T a[], int n) : size{(size_t)n}, isArray{true}
+{
+    if (n == 0)
+    {
+        // size = (size_t)1;
+        // size = 1UL;
+        return;
+    }
+    if (n < 0)
+    {
+        throw std::invalid_argument("cannot allocate negative size array");
+    }
+    try
+    {
+        raw_ptr = new T[size];
+        for (int i = 0; i < n; i++)
+        {
+            raw_ptr[i] = a[i];
+        }
+    }
+    catch (const std::bad_alloc& e)
+    {
+        std::cout << "Failure to allocate variable: " << e.what() << std::endl;
+    }
+}
+
+template <typename T>
+SmartPointer<T>::SmartPointer(SmartPointer<T>& original) : SmartPointer{original.raw_ptr}
+{
+    // if (original.raw_ptr == nullptr)
+    // {
+    //     return;
+    // }
+    
+}
+
 template <typename T>
 SmartPointer<T>::~SmartPointer<T>()
 {
-	delete raw_ptr;
-	raw_ptr = nullptr;
+    if (isArray)
+	{
+        delete[] raw_ptr;
+    }
+    else
+    {
+        delete raw_ptr;
+    }
+    raw_ptr = nullptr;
 }
 
 /**
- * Getter for pointer value
+ * Getters and setter
  */
+
 template <typename T>
 T SmartPointer<T>::getValue() const
 {
@@ -161,9 +222,6 @@ T SmartPointer<T>::getValue() const
     }
 }
 
-/**
- * Setter for pointer value
- */
 template <typename T>
 void SmartPointer<T>::setValue(T val)
 {
@@ -173,7 +231,7 @@ void SmartPointer<T>::setValue(T val)
     }
     if (raw_ptr == nullptr)
     {
-        raw_ptr = new T(val);
+        raw_ptr = new T{val};
     }
     else
     {
@@ -181,29 +239,27 @@ void SmartPointer<T>::setValue(T val)
     }
 }
 
-/**
- * Setter for pointer
- */
 template <typename T>
-void SmartPointer<T>::set(T* ptr)
+auto SmartPointer<T>::getSize() const -> decltype(size)
 {
-    delete raw_ptr;
-    raw_ptr = ptr;
+    return size;
 }
 
 /**
- * Equal operator
+ * Copy assignment operator (equal)
  */
 template <typename T>
-SmartPointer<T>& SmartPointer<T>::operator=(SmartPointer<T>& sp)
+SmartPointer<T>& SmartPointer<T>::operator=(SmartPointer<T>& r)
 {
-	if (this == &sp)
+	if (this == &r)
 	{
-		return sp;
+		return *this;
 	}
-	delete raw_ptr;
-	raw_ptr = sp.raw_ptr;
-	sp.raw_ptr = nullptr;
+    if (r.raw_ptr == nullptr)
+    {
+        delete raw_ptr;
+    }
+	this->setValue(*(r.raw_ptr));
 	return *this;
 }
 
