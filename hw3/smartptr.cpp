@@ -223,7 +223,7 @@ int main(int argc, char** argv)
 
     // Question 3
     std::cout << "\nQuestion 3 :" << std::endl;
-    std::cout << "'SmartPointer<int> sPointer(-1)' (with fake error message, real one after what():) :" << std::endl;
+    std::cout << "'SmartPointer<int> sPointer(-1)' (with fake error message, real one after 'what():') :" << std::endl;
     try
     {
         SmartPointer<int> sPointer3(-1);
@@ -281,6 +281,10 @@ int main(int argc, char** argv)
     sPointer8 = sPointer6 * sPointer7;
     std::cout << "SmartPointer(1.5) * SmartPointer(2.5) = "
               << sPointer8.getValue() << std::endl // prints 3.75
+			  << typeid(sPointer8.getValue()).name() << std::endl;
+    sPointer8 = sPointer8 - sPointer8;
+    std::cout << "SmartPointer(3.75) - itself = "
+              << sPointer8.getValue() << std::endl
 			  << typeid(sPointer8.getValue()).name() << std::endl;
 
 	// Copying assignment operator (or rather moving)
