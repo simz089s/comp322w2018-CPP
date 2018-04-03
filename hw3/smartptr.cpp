@@ -272,14 +272,7 @@ void SmartPointer<T>::setValue(T val, int idx)
 template <typename T>
 T* SmartPointer<T>::getValues() const
 {
-    if (*isArray)
-    {
-        return getPointer();
-    }
-    else
-    {
-        return getValue();
-    }
+    return getPointer();
 }
 
 // Change value into array or array values up to n if already array
@@ -303,7 +296,7 @@ void SmartPointer<T>::setValues(T a[], int n)
         delete raw_ptr;
         raw_ptr = new T[n];
     }
-    for (size_t i = 0; i < (*size < n ? *size : n); i++)
+    for (size_t i = 0; i < (*size < (size_t)n ? *size : n); i++)
     {
         raw_ptr[i] = a[i];
     }
@@ -466,7 +459,9 @@ int main(int argc, char** argv)
               << spa.getValue(1) << std::endl
               << spa.getValues() << std::endl;
     spa.setValues(a, 3);
-    std::cout << spa.getValue() << std::endl;
+    std::cout << spa.getValue() << std::endl
+              << spa.getSize() << std::endl
+              << spa.getIsArray() << std::endl;
 
     return EXIT_SUCCESS;
 }
