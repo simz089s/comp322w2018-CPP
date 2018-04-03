@@ -90,14 +90,15 @@ public:
     // void setValues(xs...); nope
     // template <typename ... Ts> void setValues(Ts ... cs); nah
     T* getPointer() const { return raw_ptr; }
-    auto getSize() const -> decltype(size);
+    auto getSize() const -> decltype(size) { return *size; }
     bool getIsArray() const { return *isArray; }
 
 	SmartPointer& operator=(SmartPointer&);
     friend SmartPointer<T> operator+(const SmartPointer<T>& l, const SmartPointer<T>& r)
     {
-        auto const tmpVal {l.getValue() + r.getValue()}; // or T const tmp = l.getValue()+r.getValue();
-        SmartPointer<T> tmpSP{tmpVal};
+        // auto const tmpVal {l.getValue() + r.getValue()}; // or T const tmp = l.getValue()+r.getValue();
+        SmartPointer<T> tmpSP{l.getValue() + r.getValue()};
+        (*(tmpSP.refCnt))++;
         return tmpSP;
     }
     friend SmartPointer<T> operator-(const SmartPointer<T>& l, const SmartPointer<T>& r)
@@ -106,14 +107,16 @@ public:
         {
             throw std::invalid_argument("negative numbers not supported by smart pointer");
         }
-        T const tmpVal = l.getValue() - r.getValue();
-        SmartPointer<T> tmpSP{tmpVal};
+        // T const tmpVal = l.getValue() - r.getValue();
+        SmartPointer<T> tmpSP{l.getValue() - r.getValue()};
+        (*(tmpSP.refCnt))++;
         return tmpSP;
     }
     friend SmartPointer<T> operator*(const SmartPointer<T>& l, const SmartPointer<T>& r)
     {
-        T const tmpVal = l.getValue() * r.getValue();
-        SmartPointer<T> tmpSP{tmpVal};
+        // T const tmpVal = l.getValue() * r.getValue();
+        SmartPointer<T> tmpSP{l.getValue() * r.getValue()};
+        (*(tmpSP.refCnt))++;
         return tmpSP;
     }
 };
@@ -170,21 +173,19 @@ SmartPointer<T>::SmartPointer(T const x[], int n) : raw_ptr{nullptr}
     }
 }
 
-// Delegates to "general" constructor
 /**
- * The idea is there is no need to call the default one or even separate the
- * cases. The default constructor also delegates to it anyway by giving the
- * reference to the parameter value, so here it does the same directly. The key
- * is that the "general" constructor already knows if it is an array or not by
- * the size (which is why it is important to enforce a size of 0 for non-arrays
- * and >0 for arrays).
- * This means it it not really a shared pointer in this case, since it would be
- * a (semi-)deep copy. The refCnt might be useless.
+ * Delegates to "general" constructor
+ * Could be made const (with refCnt being made mutable) maybe
  */
 template <typename T>
 SmartPointer<T>::SmartPointer(SmartPointer<T>& original)// : SmartPointer{original.raw_ptr, (int)*original.size}
 {
     std::cout << "Copy ctor" << std::endl; // TEST
+    raw_ptr = original.raw_ptr;
+    size = original.size;
+    isArray = original.isArray;
+    refCnt = original.refCnt;
+    (*refCnt)++;
 }
 
 template <typename T>
@@ -221,6 +222,7 @@ SmartPointer<T>::~SmartPointer<T>()
  * Getters and setter
  */
 
+// Default idx value is 0 and returns value or first element if array
 template <typename T>
 T SmartPointer<T>::getValue(int idx) const
 {
@@ -242,6 +244,7 @@ T SmartPointer<T>::getValue(int idx) const
     }
 }
 
+// Mirror behaviour of getValue
 template <typename T>
 void SmartPointer<T>::setValue(T val, int idx)
 {
@@ -267,6 +270,7 @@ void SmartPointer<T>::setValue(T val, int idx)
     }
 }
 
+// Return array or value
 template <typename T>
 T* SmartPointer<T>::getValues() const
 {
@@ -280,6 +284,7 @@ T* SmartPointer<T>::getValues() const
     }
 }
 
+// Change value into array or array values up to n if already array
 template <typename T>
 void SmartPointer<T>::setValues(T a[], int n)
 {
@@ -295,13 +300,10 @@ void SmartPointer<T>::setValues(T a[], int n)
         // isArray = nullptr;
         // raw_ptr = nullptr;
     }
-    if (raw_ptr == nullptr) // This should be avoided
+    if (raw_ptr == nullptr || !*isArray)
     {
+        delete raw_ptr;
         raw_ptr = new T[n];
-    }
-    else if (!*isArray)
-    {
-        delete
     }
     for (int i = 0; i < size<n?size:n; i++)
     {
@@ -309,31 +311,24 @@ void SmartPointer<T>::setValues(T a[], int n)
     }
 }
 
-template <typename T>
-auto SmartPointer<T>::getSize() const -> decltype(size)
-{
-    return size;
-}
-
 /**
  * Copy assignment operator (equal)
  * Shares reference
- * TODO: problem: refCnt-- does not update to other SmartPointers
  */
 template <typename T>
 SmartPointer<T>& SmartPointer<T>::operator=(SmartPointer<T>& r)
 {
-	if (this == &r)
+	if (this == &r || raw_ptr == r.raw_ptr)
 	{
 		return *this;
 	}
-    refCnt--;
-    if (refCnt == 0)
+    (*refCnt)--;
+    // Original pointers will get deleted by destructor when out of scope
 	raw_ptr = r.raw_ptr;
     isArray = r.isArray;
     size = r.size;
-    r.refCnt++;
     refCnt = r.refCnt;
+    (*refCnt)++;
 	return *this;
 }
 
@@ -344,12 +339,15 @@ int main(int argc, char** argv)
 
     SmartPointer<int> sPointer(11);
     std::cout << "'SmartPointer<int> sPointer(11)' :" << std::endl;
-    std::cout << sPointer.getValue() << std::endl;
+    std::cout << sPointer.getValue() << std::endl; // Should be 11
+    std::cout << (sPointer.getValue() == 11) << std::endl;
 
     SmartPointer<int> sPointer2;
+    std::cout << (sPointer2.getValue() == 0) << std::endl;
     sPointer2.setValue(133);
     std::cout << "'SmartPointer<int> sPointer' and 'setValue(133)' :" << std::endl;
-    std::cout << sPointer2.getValue() << std::endl;
+    std::cout << sPointer2.getValue() << std::endl; // Should be 133
+    std::cout << (sPointer2.getValue() == 133) << std::endl;
 
     // Question 3
     std::cout << "\nQuestion 3 :" << std::endl;
@@ -370,26 +368,29 @@ int main(int argc, char** argv)
 
     SmartPointer<double> sPointer4;
     std::cout << "'SmartPointer<double> sPointer' :" << std::endl;
-    std::cout << sPointer4.getValue() << std::endl
-              << typeid(sPointer4.getValue()).name() << std::endl;
+    std::cout << sPointer4.getValue() << std::endl // Should be 0.0
+              << typeid(sPointer4.getValue()).name() << std::endl; // Should be double
+    std::cout << (sPointer4.getValue() == 0.0) << std::endl;
+    std::cout << (typeid(sPointer4.getValue()) == typeid(double)) << std::endl;
 
     SmartPointer<float> sPointer5;
+    std::cout << (sPointer5.getValue() == 0.0f) << std::endl;
     sPointer5.setValue(13.31f);
     std::cout << "'SmartPointer<float> sPointer' and 'setValue(13.31)' :" << std::endl;
     std::cout << sPointer5.getValue() << std::endl
               << typeid(sPointer5.getValue()).name() << std::endl;
+    std::cout << (sPointer5.getValue() == 13.31f) << std::endl;
+    std::cout << (typeid(sPointer5.getValue()) == typeid(float)) << std::endl;
 
     // Question 5
     std::cout << "\nQuestion 5 :" << std::endl;
 
-    // Different types
-    // std::cout << (sPointer4 - sPointer5).getValue() << std::endl;
-
     SmartPointer<float> sPointer6;
+    std::cout << (sPointer6.getValue() == 0.0f) << std::endl;
     sPointer6.setValue(1.5f);
     SmartPointer<float> sPointer7;
+    std::cout << (sPointer7.getValue() == 0.0f) << std::endl;
     sPointer7.setValue(2.5f);
-    // SmartPointer<float> sPointer8 = sPointer6 + sPointer7;
     SmartPointer<float> sPointer8 = sPointer6 + sPointer7;
     std::cout << "'SmartPointer<float> sPointer1' and 'setValue(1.5)'" << std::endl
               << "'SmartPointer<float> sPointer2' and 'setValue(2.5)'" << std::endl
@@ -419,8 +420,8 @@ int main(int argc, char** argv)
 
 	// Copying assignment operator (or rather moving)
     std::cout << "\nCopy assignment operator" << std::endl;
-	SmartPointer<float> sp1(1);
-	SmartPointer<float> sp2;
+	SmartPointer<float> sp1(1); // is 1.0f
+	SmartPointer<float> sp2; // is 0.0f
 	sp2 = sp1;
     std::cout << "Original : ";
 	try
@@ -436,7 +437,7 @@ int main(int argc, char** argv)
     
     // Copy contructor
     std::cout << "\nCopy constructor" << std::endl;
-	SmartPointer<float> sp3(sp2);
+	SmartPointer<float> sp3(sp2); // is 1.0f
     std::cout << "Original : ";
 	try
 	{
@@ -449,7 +450,7 @@ int main(int argc, char** argv)
 	std::cout << "New : " << sp3.getValue()
 		      << typeid(sp3.getValue()).name() << std::endl;
     
-	SmartPointer<float> sp4 = sp3;
+	SmartPointer<float> sp4 = sp3; // is 1.0f
     std::cout << "Original : ";
 	try
 	{
