@@ -71,16 +71,14 @@ template <typename T>
 // template <class T>
 class SmartPointer
 {
-    T* raw_ptr = nullptr;
-    // T* raw_ptr = new T{0}; Could also be this, redundant with default constructor
-    size_t size = 0;
-    bool isArray = false;
+    T* raw_ptr;// = new T{0};
+    size_t* size = nullptr; // Whether signed or unsigned is safer for sizes is still argued...
+    bool* isArray = nullptr;
+    int* refCnt = nullptr;
 public:
-    // SmartPointer<T>() = default; // Default constructor
     // SmartPointer<T>() : SmartPointer{0} {} // Delegate constructor for default constructor
-    SmartPointer(T*); // Constructing a smart pointer out of a raw pointer
-    SmartPointer(T const = 0); // Using default parameter for default constructor (redundant)
-    SmartPointer(T [], int); // Array constructor
+    SmartPointer(T const x = 0) : SmartPointer(&x) {}
+    SmartPointer(T const [], int = 0);
 	SmartPointer(SmartPointer&); // Copy constructor
     ~SmartPointer();
 
@@ -88,6 +86,7 @@ public:
     void setValue(T);
     T* get() const { return raw_ptr; }
     auto getSize() const -> decltype(size);
+    bool getIsArray() const { return *isArray; }
 
 	SmartPointer& operator=(SmartPointer&);
     friend SmartPointer<T> operator+(const SmartPointer<T>& l, const SmartPointer<T>& r)
@@ -119,34 +118,45 @@ public:
  */
 
 template <typename T>
-SmartPointer<T>::SmartPointer(T* p)// : SmartPointer{*p} can't cover NULL with delegate constructor
+SmartPointer<T>::SmartPointer(T const x[], int n) : raw_ptr{nullptr}
 {
-    if (p == nullptr)
-    {
-        raw_ptr = nullptr;
-    }
-    else if (*p < 0)
-    {
-        throw std::invalid_argument("negative numbers not supported by smart pointer");
-    }
-    else
-    {
-        raw_ptr = new T{*p};
-        size = 1;
-    }
-}
-
-template <typename T>
-SmartPointer<T>::SmartPointer(T const x) : raw_ptr{nullptr}
-{
-    if (x < 0)
-    {
-        throw std::invalid_argument("negative numbers not supported by smart pointer");
-    }
     try
     {
-        raw_ptr = new T{x};
-        size = 1;
+        if (n == 0) // Single value
+        {
+            if (*x < 0)
+            {
+                throw std::invalid_argument("negative numbers not supported by smart pointer");
+            }
+            else
+            {
+                raw_ptr = new T{*x};
+                size = new size_t{0};
+                isArray = new bool{false};
+            }
+        }
+        else if (n < 0)
+        {
+            throw std::invalid_argument("array size cannot be a negative number");
+        }
+        else // Array case
+        {
+            isArray = new bool{true};
+            size = new size_t{(size_t)n};
+            if (x == nullptr)
+            {
+                raw_ptr = nullptr;
+            }
+            else
+            {
+                raw_ptr = new T[*size];
+                for (int i = 0; i < *size; i++)
+                {
+                    raw_ptr[i] = x[i];
+                }
+            }
+        }
+        refCnt = new int{1};
     }
     catch (const std::bad_alloc& e)
     {
@@ -155,45 +165,24 @@ SmartPointer<T>::SmartPointer(T const x) : raw_ptr{nullptr}
 }
 
 template <typename T>
-SmartPointer<T>::SmartPointer(T a[], int n) : size{(size_t)n}, isArray{true}
+SmartPointer<T>::SmartPointer(SmartPointer<T>& original)
 {
-    if (n == 0)
+    std::cout << "Copy ctor" << std::endl;
+    if (original.raw_ptr == nullptr)
     {
-        // size = (size_t)1;
-        // size = 1UL;
         return;
     }
-    if (n < 0)
-    {
-        throw std::invalid_argument("cannot allocate negative size array");
-    }
-    try
-    {
-        raw_ptr = new T[size];
-        for (int i = 0; i < n; i++)
-        {
-            raw_ptr[i] = a[i];
-        }
-    }
-    catch (const std::bad_alloc& e)
-    {
-        std::cout << "Failure to allocate variable: " << e.what() << std::endl;
-    }
-}
-
-template <typename T>
-SmartPointer<T>::SmartPointer(SmartPointer<T>& original) : SmartPointer{original.raw_ptr}
-{
-    // if (original.raw_ptr == nullptr)
-    // {
-    //     return;
-    // }
-    
 }
 
 template <typename T>
 SmartPointer<T>::~SmartPointer<T>()
 {
+    refCnt--;
+    if (refCnt > 0)
+    {
+        raw_ptr = nullptr;
+        return;
+    }
     if (isArray)
 	{
         delete[] raw_ptr;
@@ -247,6 +236,8 @@ auto SmartPointer<T>::getSize() const -> decltype(size)
 
 /**
  * Copy assignment operator (equal)
+ * Shares reference
+ * TODO: problem: refCnt-- does not update to other SmartPointers
  */
 template <typename T>
 SmartPointer<T>& SmartPointer<T>::operator=(SmartPointer<T>& r)
@@ -255,11 +246,13 @@ SmartPointer<T>& SmartPointer<T>::operator=(SmartPointer<T>& r)
 	{
 		return *this;
 	}
-    if (r.raw_ptr == nullptr)
-    {
-        delete raw_ptr;
-    }
-	this->setValue(*(r.raw_ptr));
+    refCnt--;
+    if (refCnt == 0)
+	raw_ptr = r.raw_ptr;
+    isArray = r.isArray;
+    size = r.size;
+    r.refCnt++;
+    refCnt = r.refCnt;
 	return *this;
 }
 
