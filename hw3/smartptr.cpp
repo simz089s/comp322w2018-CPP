@@ -450,6 +450,8 @@ int main(int argc, char** argv)
                    sp2.getValue() == sp3.getValue() &&
                    sp3.getValue() == sp4.getValue())?"pass":"fail") << std::endl;
     
+    // Question 6
+    std::cout << "\nQuestion 6 :" << std::endl;
     double a[] = {1.0, 2.0, 3.0};
     SmartPointer<double> spa(a, 3);
     spa.setValue(4.0);
@@ -462,6 +464,13 @@ int main(int argc, char** argv)
     std::cout << spa.getValue() << std::endl
               << spa.getSize() << std::endl
               << spa.getIsArray() << std::endl;
+    SmartPointer<double> spv;
+    spv = spa;
+    std::cout << spv.getIsArray() << std::endl
+              << spv.getValues()[2] << std::endl;
+    // delete &spa;
+    // std::cout << spv.getIsArray() << std::endl
+    //           << spv.getValues()[2] << std::endl;
 
     return EXIT_SUCCESS;
 }
