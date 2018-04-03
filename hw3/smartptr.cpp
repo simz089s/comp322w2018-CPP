@@ -79,7 +79,7 @@ public:
     // SmartPointer<T>() : SmartPointer{0} {} // Delegate constructor for default constructor
     SmartPointer(T const x = 0) : SmartPointer(&x) {}
     SmartPointer(T const [], int = 0);
-	SmartPointer(SmartPointer&); // Copy constructor
+	SmartPointer(const SmartPointer&); // Copy constructor
     ~SmartPointer();
 
     T getValue(int = 0) const;
@@ -90,13 +90,12 @@ public:
     // void setValues(xs...); nope
     // template <typename ... Ts> void setValues(Ts ... cs); nah
     T* getPointer() const { return raw_ptr; }
-    auto getSize() const -> decltype(size) { return *size; }
-    bool getIsArray() const { return *isArray; }
+    auto getSize() const -> decltype(*size) { return *size; } // or size_t getSize() const
+    bool getIsArray() const { return *isArray; } // auto getIsArray() -> decltype(*isArray) const
 
-	SmartPointer& operator=(SmartPointer&);
+	SmartPointer& operator=(const SmartPointer&);
     friend SmartPointer<T> operator+(const SmartPointer<T>& l, const SmartPointer<T>& r)
     {
-        // auto const tmpVal {l.getValue() + r.getValue()}; // or T const tmp = l.getValue()+r.getValue();
         SmartPointer<T> tmpSP{l.getValue() + r.getValue()};
         (*(tmpSP.refCnt))++;
         return tmpSP;
@@ -107,14 +106,12 @@ public:
         {
             throw std::invalid_argument("negative numbers not supported by smart pointer");
         }
-        // T const tmpVal = l.getValue() - r.getValue();
         SmartPointer<T> tmpSP{l.getValue() - r.getValue()};
         (*(tmpSP.refCnt))++;
         return tmpSP;
     }
     friend SmartPointer<T> operator*(const SmartPointer<T>& l, const SmartPointer<T>& r)
     {
-        // T const tmpVal = l.getValue() * r.getValue();
         SmartPointer<T> tmpSP{l.getValue() * r.getValue()};
         (*(tmpSP.refCnt))++;
         return tmpSP;
@@ -159,7 +156,7 @@ SmartPointer<T>::SmartPointer(T const x[], int n) : raw_ptr{nullptr}
             else
             {
                 raw_ptr = new T[*size];
-                for (int i = 0; i < *size; i++)
+                for (size_t i = 0; i < (*size); i++)
                 {
                     raw_ptr[i] = x[i];
                 }
@@ -175,12 +172,13 @@ SmartPointer<T>::SmartPointer(T const x[], int n) : raw_ptr{nullptr}
 
 /**
  * Delegates to "general" constructor
- * Could be made const (with refCnt being made mutable) maybe
+ * Does not change refCnt itself so still const, should be invisible to
+ * interface anyway so acceptable.
  */
 template <typename T>
-SmartPointer<T>::SmartPointer(SmartPointer<T>& original)// : SmartPointer{original.raw_ptr, (int)*original.size}
+SmartPointer<T>::SmartPointer(const SmartPointer<T>& original)// : SmartPointer{original.raw_ptr, (int)*original.size}
 {
-    std::cout << "Copy ctor" << std::endl; // TEST
+    // std::cout << "Copy ctor" << std::endl; // TEST
     raw_ptr = original.raw_ptr;
     size = original.size;
     isArray = original.isArray;
@@ -305,7 +303,7 @@ void SmartPointer<T>::setValues(T a[], int n)
         delete raw_ptr;
         raw_ptr = new T[n];
     }
-    for (int i = 0; i < size<n?size:n; i++)
+    for (size_t i = 0; i < (*size < n ? *size : n); i++)
     {
         raw_ptr[i] = a[i];
     }
@@ -314,10 +312,12 @@ void SmartPointer<T>::setValues(T a[], int n)
 /**
  * Copy assignment operator (equal)
  * Shares reference
+ * Similar to copy constructor
  */
 template <typename T>
-SmartPointer<T>& SmartPointer<T>::operator=(SmartPointer<T>& r)
+SmartPointer<T>& SmartPointer<T>::operator=(const SmartPointer<T>& r)
 {
+    // std::cout << "Copy op" << std::endl; // TEST
 	if (this == &r || raw_ptr == r.raw_ptr)
 	{
 		return *this;
@@ -340,14 +340,14 @@ int main(int argc, char** argv)
     SmartPointer<int> sPointer(11);
     std::cout << "'SmartPointer<int> sPointer(11)' :" << std::endl;
     std::cout << sPointer.getValue() << std::endl; // Should be 11
-    std::cout << (sPointer.getValue() == 11) << std::endl;
+    std::cout << ((sPointer.getValue() == 11)?"pass":"fail") << std::endl;
 
     SmartPointer<int> sPointer2;
-    std::cout << (sPointer2.getValue() == 0) << std::endl;
+    std::cout << ((sPointer2.getValue() == 0)?"pass":"fail") << std::endl;
     sPointer2.setValue(133);
     std::cout << "'SmartPointer<int> sPointer' and 'setValue(133)' :" << std::endl;
     std::cout << sPointer2.getValue() << std::endl; // Should be 133
-    std::cout << (sPointer2.getValue() == 133) << std::endl;
+    std::cout << ((sPointer2.getValue() == 133)?"pass":"fail") << std::endl;
 
     // Question 3
     std::cout << "\nQuestion 3 :" << std::endl;
@@ -370,33 +370,35 @@ int main(int argc, char** argv)
     std::cout << "'SmartPointer<double> sPointer' :" << std::endl;
     std::cout << sPointer4.getValue() << std::endl // Should be 0.0
               << typeid(sPointer4.getValue()).name() << std::endl; // Should be double
-    std::cout << (sPointer4.getValue() == 0.0) << std::endl;
-    std::cout << (typeid(sPointer4.getValue()) == typeid(double)) << std::endl;
+    std::cout << ((sPointer4.getValue() == 0.0)?"pass":"fail") << std::endl;
+    std::cout << ((typeid(sPointer4.getValue()) == typeid(double))?"pass":"fail") << std::endl;
 
     SmartPointer<float> sPointer5;
-    std::cout << (sPointer5.getValue() == 0.0f) << std::endl;
     sPointer5.setValue(13.31f);
     std::cout << "'SmartPointer<float> sPointer' and 'setValue(13.31)' :" << std::endl;
     std::cout << sPointer5.getValue() << std::endl
               << typeid(sPointer5.getValue()).name() << std::endl;
-    std::cout << (sPointer5.getValue() == 13.31f) << std::endl;
-    std::cout << (typeid(sPointer5.getValue()) == typeid(float)) << std::endl;
+    std::cout << ((sPointer5.getValue() == 13.31f)?"pass":"fail") << std::endl;
+    std::cout << ((typeid(sPointer5.getValue()) == typeid(float))?"pass":"fail") << std::endl;
 
     // Question 5
     std::cout << "\nQuestion 5 :" << std::endl;
 
     SmartPointer<float> sPointer6;
-    std::cout << (sPointer6.getValue() == 0.0f) << std::endl;
     sPointer6.setValue(1.5f);
     SmartPointer<float> sPointer7;
-    std::cout << (sPointer7.getValue() == 0.0f) << std::endl;
     sPointer7.setValue(2.5f);
     SmartPointer<float> sPointer8 = sPointer6 + sPointer7;
+    // sPointer8 = sPointer6 + sPointer7;
     std::cout << "'SmartPointer<float> sPointer1' and 'setValue(1.5)'" << std::endl
               << "'SmartPointer<float> sPointer2' and 'setValue(2.5)'" << std::endl
               << "SmartPointer(1.5) + SmartPointer(2.5) = "
-              << sPointer8.getValue() << std::endl // prints 4
+              << sPointer8.getValue() << std::endl // Should be 4.0f
 			  << typeid(sPointer8.getValue()).name() << std::endl;
+    std::cout << ((sPointer6.getValue() == 1.5f)?"pass":"fail") << std::endl;
+    std::cout << ((sPointer7.getValue() == 2.5f)?"pass":"fail") << std::endl;
+    std::cout << ((sPointer8.getValue() == 4.0f)?"pass":"fail") << std::endl;
+    std::cout << ((typeid(sPointer8.getValue()) == typeid(float))?"pass":"fail") << std::endl;
     std::cout << "SmartPointer(1.5) - SmartPointer(2.5) = ";
     try
     {
@@ -406,32 +408,32 @@ int main(int argc, char** argv)
     {
         sPointer8 = sPointer7 - sPointer6;
         std::cout << e.what() << "\nSmartPointer(2.5) - SmartPointer(1.5) = "
-                  << sPointer8.getValue() << std::endl // prints 1
+                  << sPointer8.getValue() << std::endl // Should be 1.0f
                   << typeid(sPointer8.getValue()).name() << std::endl;
+        std::cout << ((sPointer8.getValue()==1.0f)?"pass":"fail") << std::endl
+                  << ((typeid(sPointer8.getValue())==typeid(float))?"pass":"fail") << std::endl;
     }
     sPointer8 = sPointer6 * sPointer7;
     std::cout << "SmartPointer(1.5) * SmartPointer(2.5) = "
-              << sPointer8.getValue() << std::endl // prints 3.75
+              << sPointer8.getValue() << std::endl // Should be 3.75f
 			  << typeid(sPointer8.getValue()).name() << std::endl;
+    std::cout << ((sPointer8.getValue()==3.75f)?"pass":"fail") << std::endl
+              << ((typeid(sPointer8.getValue())==typeid(float))?"pass":"fail") << std::endl;
     sPointer8 = sPointer8 - sPointer8;
     std::cout << "SmartPointer(3.75) - itself = "
-              << sPointer8.getValue() << std::endl
+              << sPointer8.getValue() << std::endl // Should be 0.0f
 			  << typeid(sPointer8.getValue()).name() << std::endl;
+    std::cout << ((sPointer8.getValue()==0.0f)?"pass":"fail") << std::endl
+              << ((typeid(sPointer8.getValue())==typeid(float))?"pass":"fail") << std::endl;
 
-	// Copying assignment operator (or rather moving)
+	// Copying assignment operator
     std::cout << "\nCopy assignment operator" << std::endl;
 	SmartPointer<float> sp1(1); // is 1.0f
 	SmartPointer<float> sp2; // is 0.0f
-	sp2 = sp1;
+	sp2 = sp1; // Both 1.0f now
     std::cout << "Original : ";
-	try
-	{
-		std::cout << sp1.getValue() << std::endl;
-	}
-	catch (const std::invalid_argument e)
-	{
-		std::cout << e.what() << std::endl;
-	}
+    std::cout << sp1.getValue()
+			  << typeid(sp1.getValue()).name() << std::endl;
 	std::cout << "New : " << sp2.getValue()
 			  << typeid(sp2.getValue()).name() << std::endl;
     
@@ -439,29 +441,32 @@ int main(int argc, char** argv)
     std::cout << "\nCopy constructor" << std::endl;
 	SmartPointer<float> sp3(sp2); // is 1.0f
     std::cout << "Original : ";
-	try
-	{
-		std::cout << sp2.getValue() << std::endl;
-	}
-	catch (const std::invalid_argument e)
-	{
-		std::cout << e.what() << std::endl;
-	}
+    std::cout << sp2.getValue()
+		      << typeid(sp2.getValue()).name() << std::endl;
 	std::cout << "New : " << sp3.getValue()
 		      << typeid(sp3.getValue()).name() << std::endl;
     
 	SmartPointer<float> sp4 = sp3; // is 1.0f
     std::cout << "Original : ";
-	try
-	{
-		std::cout << sp3.getValue() << std::endl;
-	}
-	catch (const std::invalid_argument e)
-	{
-		std::cout << e.what() << std::endl;
-	}
+    std::cout << sp3.getValue()
+		      << typeid(sp3.getValue()).name() << std::endl;
 	std::cout << "New : " << sp4.getValue()
 		      << typeid(sp4.getValue()).name() << std::endl;
+    
+    std::cout << ((sp1.getValue() == sp2.getValue() &&
+                   sp2.getValue() == sp3.getValue() &&
+                   sp3.getValue() == sp4.getValue())?"pass":"fail") << std::endl;
+    
+    double a[] = {1.0, 2.0, 3.0};
+    SmartPointer<double> spa(a, 3);
+    spa.setValue(4.0);
+    std::cout << spa.getValue() << std::endl;
+    spa.setValue(4.0, 0);
+    std::cout << spa.getValue() << std::endl
+              << spa.getValue(1) << std::endl
+              << spa.getValues() << std::endl;
+    spa.setValues(a, 3);
+    std::cout << spa.getValue() << std::endl;
 
     return EXIT_SUCCESS;
 }
