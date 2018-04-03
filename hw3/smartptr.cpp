@@ -82,9 +82,14 @@ public:
 	SmartPointer(SmartPointer&); // Copy constructor
     ~SmartPointer();
 
-    T getValue() const;
-    void setValue(T);
-    T* get() const { return raw_ptr; }
+    T getValue(int = 0) const;
+    void setValue(T, int = 0);
+    T* getValues() const;
+    void setValues(T[], int);
+    // void setValues(std::initializer_list<T>); pls no
+    // void setValues(xs...); nope
+    // template <typename ... Ts> void setValues(Ts ... cs); nah
+    T* getPointer() const { return raw_ptr; }
     auto getSize() const -> decltype(size);
     bool getIsArray() const { return *isArray; }
 
@@ -117,6 +122,7 @@ public:
  * Constructors and destructor
  */
 
+// General constructor
 template <typename T>
 SmartPointer<T>::SmartPointer(T const x[], int n) : raw_ptr{nullptr}
 {
@@ -164,26 +170,37 @@ SmartPointer<T>::SmartPointer(T const x[], int n) : raw_ptr{nullptr}
     }
 }
 
+// Delegates to "general" constructor
+/**
+ * The idea is there is no need to call the default one or even separate the
+ * cases. The default constructor also delegates to it anyway by giving the
+ * reference to the parameter value, so here it does the same directly. The key
+ * is that the "general" constructor already knows if it is an array or not by
+ * the size (which is why it is important to enforce a size of 0 for non-arrays
+ * and >0 for arrays).
+ * This means it it not really a shared pointer in this case, since it would be
+ * a (semi-)deep copy. The refCnt might be useless.
+ */
 template <typename T>
-SmartPointer<T>::SmartPointer(SmartPointer<T>& original)
+SmartPointer<T>::SmartPointer(SmartPointer<T>& original)// : SmartPointer{original.raw_ptr, (int)*original.size}
 {
-    std::cout << "Copy ctor" << std::endl;
-    if (original.raw_ptr == nullptr)
-    {
-        return;
-    }
+    std::cout << "Copy ctor" << std::endl; // TEST
 }
 
 template <typename T>
 SmartPointer<T>::~SmartPointer<T>()
 {
-    refCnt--;
-    if (refCnt > 0)
+    (*refCnt)--;
+    if (*refCnt > 0)
     {
         raw_ptr = nullptr;
+        size = nullptr;
+        isArray = nullptr;
+        refCnt = nullptr;
         return;
     }
-    if (isArray)
+
+    if (*isArray)
 	{
         delete[] raw_ptr;
     }
@@ -192,6 +209,12 @@ SmartPointer<T>::~SmartPointer<T>()
         delete raw_ptr;
     }
     raw_ptr = nullptr;
+    delete size;
+    size = nullptr;
+    delete isArray;
+    isArray = nullptr;
+    delete refCnt;
+    refCnt = nullptr;
 }
 
 /**
@@ -199,11 +222,19 @@ SmartPointer<T>::~SmartPointer<T>()
  */
 
 template <typename T>
-T SmartPointer<T>::getValue() const
+T SmartPointer<T>::getValue(int idx) const
 {
     if (raw_ptr == nullptr)
     {
         throw std::invalid_argument("getting value from null pointer exception");
+    }
+    if (*isArray)
+    {
+        if (idx < 0 || (size_t)idx >= *size)
+        {
+            throw std::out_of_range("index out of bounds");
+        }
+        return raw_ptr[idx];
     }
     else
     {
@@ -212,19 +243,69 @@ T SmartPointer<T>::getValue() const
 }
 
 template <typename T>
-void SmartPointer<T>::setValue(T val)
+void SmartPointer<T>::setValue(T val, int idx)
 {
-    if (val < 0)
+    if (*isArray)
+    {
+        if (idx < 0 || (size_t)idx >= *size)
+        {
+            throw std::out_of_range("index out of bounds");
+        }
+        raw_ptr[idx] = val;
+    }
+    else if (val < 0)
     {
         throw std::invalid_argument("negative numbers not supported by smart pointer");
     }
-    if (raw_ptr == nullptr)
+    else if (raw_ptr == nullptr) // This should be avoided
     {
         raw_ptr = new T{val};
     }
     else
     {
         *raw_ptr = val;
+    }
+}
+
+template <typename T>
+T* SmartPointer<T>::getValues() const
+{
+    if (*isArray)
+    {
+        return getPointer();
+    }
+    else
+    {
+        return getValue();
+    }
+}
+
+template <typename T>
+void SmartPointer<T>::setValues(T a[], int n)
+{
+    if (n < 0)
+    {
+        throw std::invalid_argument("array size cannot be a negative number");
+    }
+    if (a == nullptr)
+    {
+        throw std::invalid_argument("cannot set values from null pointer");
+        // (*refCnt)--;
+        // size = nullptr;
+        // isArray = nullptr;
+        // raw_ptr = nullptr;
+    }
+    if (raw_ptr == nullptr) // This should be avoided
+    {
+        raw_ptr = new T[n];
+    }
+    else if (!*isArray)
+    {
+        delete
+    }
+    for (int i = 0; i < size<n?size:n; i++)
+    {
+        raw_ptr[i] = a[i];
     }
 }
 
